@@ -1,0 +1,72 @@
+{
+"name": "SceneTest",
+	"entities": [
+		{
+			"name": "Body1",
+			"components": [
+				{
+					"type": 1,
+					"position": [300, 300],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"name": "Circle Shape Component",
+					"type": 4,
+					"shape_type": 1,
+					"radius": 50
+				},
+				{
+					"name": "Rigidbody",
+					"type": 8,
+					"body_type": 2
+				},
+				{
+					"name": "CircleCollider",
+					"type": 16,
+					"collider_type": 1,
+					"radius": 50,
+					"bouncing": 0.5,
+					"sensor": false
+				},
+				{
+					"type": 64,
+					"script_path": "scripts/collider_test.py"
+				}
+			]
+		},
+		{
+			"name": "Ground",
+			"components": [
+				{
+					"type": 1,
+					"position": [400, 600],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"name": "Rectangle Shape Component",
+					"type": 4,
+					"shape_type": 2,
+					"size": [800, 200]
+				},
+				{
+					"name": "Rigidbody",
+					"type": 8,
+					"body_type": 0
+				},
+				{
+					"name": "BoxCollider",
+					"type": 16,
+					"collider_type": 2,
+					"size": [800,200],
+					"sensor": false
+				},
+				{
+					"type": 64,
+					"script_path": "scripts/collider_test.py"
+				}
+			]
+		}
+	]
+}

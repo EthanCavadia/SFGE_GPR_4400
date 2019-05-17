@@ -1,0 +1,26 @@
+{
+    "name": "SceneTest",
+    "entities": [
+        {
+            "name": "SpriteTest",
+            "components": [
+                {
+                    "type": 1,
+                    "position": [300, 300],
+                    "scale" : [1.0,1.0],
+                    "angle": 0.0
+                },
+                {
+                    "name": "spriteTestComponent",
+                    "type": 2,
+                    "path": "data/sprites/Items/coinBronze.png",
+                    "layer": 3
+                },
+                {
+                    "type": 64,
+                    "script_path": "scripts/switch_scene.py"
+                }
+            ]
+        }
+    ]
+}

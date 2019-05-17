@@ -1,0 +1,37 @@
+{
+	"name": "SceneTest",
+	"entities": [
+		{
+			"name": "SpriteTest",
+			"components": [
+				{
+					"type": 1,
+					"position": [300, 300],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"type": 2,
+					"path": "data/sprites/test.png",
+					"layer": 3
+				}
+			]
+		},
+		{
+			"name": "SpriteTest2",
+			"components": [
+				{
+					"type": 1,
+					"position": [200, 300],
+					"scale" : [1.0,1.0],
+					"angle": 0.0
+				},
+				{
+					"type": 2,
+					"path": "data/sprites/test.png",
+					"layer": 2
+				}
+			]
+		}
+	]
+}
