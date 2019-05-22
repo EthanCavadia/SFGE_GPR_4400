@@ -1,4 +1,5 @@
 #include "..\include\p2quadtree.h"
+#include <memory>
 
 p2QuadTree::p2QuadTree(int nodeLevel, p2AABB bounds)
 {
@@ -21,7 +22,6 @@ void p2QuadTree::Clear()
 		{
 			m_Objects.push_back(body);
 		}
-
 		delete(quad);
 	}
 }
@@ -59,25 +59,89 @@ void p2QuadTree::Split()
 	}
 }
 
-int p2QuadTree::GetIndex(p2Body * rect)
+int p2QuadTree::GetIndex(p2Body* obj)
 {
-	for (int i = 0; i < CHILD_TREE_NMB; i++)
+	int index = -1;
+	
+	float verticalMidPoint = obj->GetAABB().GetExtends().x + (obj->GetAABB().GetExtends().x / 2);
+	float horizontalMidPoint = obj->GetAABB().GetExtends().y + (obj->GetAABB().GetExtends().y / 2);
+
+	bool topQuad = obj->GetAABB().GetExtends().y < horizontalMidPoint && obj->GetAABB().GetExtends().y + obj->GetAABB().bottomLeft.y < horizontalMidPoint;
+	bool bottomQuad = obj->GetAABB().GetExtends().y > horizontalMidPoint;
+
+	if (obj->GetAABB().GetExtends().x < verticalMidPoint && obj->GetAABB().GetExtends().x + obj->GetAABB().bottomLeft.x < verticalMidPoint)
 	{
-		for(p2Body* body : nodes[i]->m_Objects)
+		if (topQuad)
 		{
-			if (body == rect)
-				return i;
+			index = 1;
+		}
+		else if (bottomQuad)
+		{
+			index = 2;
 		}
 	}
-
-	return 0;
+	else if (obj->GetAABB().GetExtends().x > verticalMidPoint)
+	{
+		if (topQuad)
+		{
+			index = 0;
+		}
+		else if (bottomQuad)
+		{
+			index = 3;
+		}
+	}
+	return index;
 }
 
 void p2QuadTree::Insert(p2Body * obj)
 {
+	if (nodes[0] != nullptr)
+	{
+		int index = GetIndex(obj);
+
+		if (index != -1)
+		{
+			nodes[index]->Insert(obj);
+			return;
+		}
+	}
 	m_Objects.push_back(obj);
+
+	if (m_Objects.size() > MAX_OBJECTS && m_NodeLevel < MAX_LEVELS)
+	{
+		if (nodes[0] == nullptr)
+		{
+			Split();
+		}
+		for (p2Body* body : m_Objects)
+		{
+			int i = 0;
+			while (i < m_Objects.size())
+			{
+				int index = GetIndex(body);
+				if (index != -1)
+				{
+					nodes[index]->Insert(body);
+				}
+				else
+				{
+					i++;
+				}
+			}
+		}
+	}
 }
 
-void p2QuadTree::Retrieve()
+std::vector<p2Body*> p2QuadTree::Retrieve(std::vector<p2Body*> returnObj, p2Body* obj)
 {
+	int index = GetIndex(obj);
+	if (index != -1 && nodes[0] != nullptr)
+	{
+		nodes[index]->Retrieve(returnObj, obj);
+	}
+
+	returnObj.push_back(obj);
+
+	return returnObj;
 }

@@ -43,11 +43,10 @@ void p2World::Step(float dt)
 		}
 
 		body.BuildAABB();
-
 	}
 
 	// Quadtree
-
+	p2QuadTree(5, )
 	// Check for collision
 }
 

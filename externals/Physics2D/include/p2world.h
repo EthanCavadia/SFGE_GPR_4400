@@ -28,6 +28,8 @@ SOFTWARE.
 #include <p2vector.h>
 #include <p2body.h>
 #include <p2contact.h>
+#include "p2quadtree.h"
+#include "SFML/Graphics/RenderWindow.hpp"
 
 const size_t MAX_BODY_LEN = 256;
 
@@ -54,6 +56,7 @@ private:
 	p2Vec2 m_Gravity;
 	std::vector<p2Body> m_Bodies;
 	int m_BodyIndex = 0;
+	std::unique_ptr<sf::RenderWindow> m_Window;
 };
 
 #endif

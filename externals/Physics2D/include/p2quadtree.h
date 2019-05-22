@@ -30,6 +30,7 @@ SOFTWARE.
 #include <p2vector.h>
 #include <p2aabb.h>
 #include <p2body.h>
+#include "SFML/Window/Window.hpp"
 
 /**
 * \brief Representation of a tree with 4 branches containing p2Body defined by their p2AABB
@@ -52,7 +53,7 @@ public:
 	/**
 	* Get the index of the child trees of the p2Body
 	*/
-	int GetIndex(p2Body* rect);
+	int GetIndex(p2Body* obj);
 	/**
 	* Insert a new p2Body in the tree
 	*/
@@ -60,7 +61,7 @@ public:
 	/**
 	* Return a list of all the p2Body that might collide
 	*/
-	void Retrieve();
+	std::vector<p2Body*> Retrieve(std::vector<p2Body*> retunrObj, p2Body* obj);
 	
 private:
 	static const int MAX_OBJECTS = 10;
@@ -68,8 +69,9 @@ private:
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;
 	p2QuadTree* nodes[CHILD_TREE_NMB] = { nullptr };
-	std::list<p2Body*> m_Objects;
+	std::vector<p2Body*> m_Objects;
 	p2AABB m_Bounds;
+	
 };
 
 #endif

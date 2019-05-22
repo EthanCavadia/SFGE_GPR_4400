@@ -34,8 +34,4 @@ p2Collider * p2Contact::GetColliderB()
 	return nullptr;
 }
 
-void p2ContactManager::Init(p2ContactListener* contactListener)
-{
-	contactListener = m_ContactListener;
-}
 

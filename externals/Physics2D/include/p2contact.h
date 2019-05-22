@@ -52,9 +52,6 @@ public:
 */
 class p2ContactManager
 {
-private:
-	p2ContactListener* m_ContactListener;
-public:
-	void Init(p2ContactListener* contactListener);
+
 };
 #endif

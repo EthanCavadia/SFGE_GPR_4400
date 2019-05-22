@@ -70,6 +70,7 @@ public:
 	p2Shape* GetShape() const;
 	void SetUserData(void* colliderData);
 	p2AABB BuildAABBCollider(p2Vec2 position);
+
 private:
 	p2AABB aabb;
 	void* userData = nullptr;
