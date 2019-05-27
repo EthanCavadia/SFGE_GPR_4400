@@ -29,179 +29,188 @@ SOFTWARE.
 namespace sfge
 {
 
-const float Physics2dManager::pixelPerMeter = 100.0f;
+	const float Physics2dManager::pixelPerMeter = 100.0f;
 
 
-void Physics2dManager::OnEngineInit()
-{
-	p2Vec2 gravity;
-	if(const auto configPtr = m_Engine.GetConfig())
-		gravity = configPtr->gravity;
-	m_World = std::make_shared<p2World>(gravity);
-	m_ContactListener = std::make_unique<ContactListener>(m_Engine);
-	m_World->SetContactListener(m_ContactListener.get());
-
-	m_BodyManager.OnEngineInit();
-	m_ColliderManager.OnEngineInit();
-}
-
-void Physics2dManager::OnUpdate(float dt)
-{
-	(void)dt;
-}
-
-void Physics2dManager::OnFixedUpdate()
-{
-	rmt_ScopedCPUSample(Physics2dManager,0);
-	const auto config = m_Engine.GetConfig();
-	if (config != nullptr and m_World != nullptr)
+	void Physics2dManager::OnEngineInit()
 	{
-		m_World->Step(config->fixedDeltaTime);
-		m_BodyManager.OnFixedUpdate();
-	}
-}
-
-std::weak_ptr<p2World> Physics2dManager::GetWorld() const
-{
-	return m_World;
-}
-
-
-void Physics2dManager::Destroy()
-{
-	if (m_World != nullptr)
-	{
-		m_World = nullptr;
-	}
-	if (m_ContactListener != nullptr)
-	{
-		m_ContactListener = nullptr;
-	}
-
-}
-
-void Physics2dManager::OnBeforeSceneLoad()
-{
-	Destroy();
-	OnEngineInit();
-}
-
-void Physics2dManager::OnAfterSceneLoad()
-{
-}
-
-
-Body2dManager* Physics2dManager::GetBodyManager()
-{
-	return &m_BodyManager;
-}
-
-ColliderManager* Physics2dManager::GetColliderManager()
-{
-	return &m_ColliderManager;
-}
-/*
-float Physics2dManager::Raycast(Vec2f startPoint, Vec2f direction, float rayLength)
-{
-	RaycastCallback rayCastCallback;
-	rayCastCallback.fraction = 1.0f;
-	m_World->RayCast(&rayCastCallback, pixel2meter(startPoint), pixel2meter(startPoint+direction*rayLength));
-	return rayCastCallback.fraction;
-}
-*/
-void ContactListener::BeginContact(p2Contact* contact)
-{
-	auto* pythonEngine = m_Engine.GetPythonEngine();
-	const auto colliderA = static_cast<ColliderData*>(contact->GetColliderA()->GetUserData());
-	const auto colliderB = static_cast<ColliderData*>(contact->GetColliderB()->GetUserData());
-
-	/*{
-		std::ostringstream oss;
-		oss << "Begin Contact between: " << colliderA->entity << " and: " << colliderB->entity;
-		Log::GetInstance()->Msg(oss.str());
-	}*/
-
-	auto& pySystems = pythonEngine->GetPySystemManager().GetPySystems();
-	for(size_t i = 0;i < pySystems.size();i++)
-	{
-		if(pySystems[i] != nullptr)
+		p2Vec2 gravity;
+		sf::Vector2i screenSize;
+		if (const auto configPtr = m_Engine.GetConfig())
 		{
-			pySystems[i]->OnContact(colliderA, colliderB, true);
+			gravity = configPtr->gravity;
+			screenSize = configPtr->screenResolution;
+		}
+		m_World = std::make_shared<p2World>(gravity, screenSize);
+		m_ContactListener = std::make_unique<ContactListener>(m_Engine);
+		m_World->SetContactListener(m_ContactListener.get());
+
+		m_BodyManager.OnEngineInit();
+		m_ColliderManager.OnEngineInit();
+	}
+
+	void Physics2dManager::OnUpdate(float dt)
+	{
+		(void)dt;
+	}
+
+	void Physics2dManager::OnFixedUpdate()
+	{
+		rmt_ScopedCPUSample(Physics2dManager, 0);
+		const auto config = m_Engine.GetConfig();
+		if (config != nullptr and m_World != nullptr)
+		{
+			m_World->Step(config->fixedDeltaTime);
+			m_BodyManager.OnFixedUpdate();
 		}
 	}
-		
-}
 
-void ContactListener::EndContact(p2Contact* contact)
-{
-	auto pythonEngine = m_Engine.GetPythonEngine();
-	auto* colliderA = static_cast<ColliderData*>(contact->GetColliderA()->GetUserData());
-	auto* colliderB = static_cast<ColliderData*>(contact->GetColliderB()->GetUserData());
-
-	/*{
-		std::ostringstream oss;
-		oss << "End Contact between: " << colliderA->entity << " and: " << colliderB->entity;
-		Log::GetInstance()->Msg(oss.str());
-	}*/
-
-	auto& pySystems = pythonEngine->GetPySystemManager().GetPySystems();
-	for (size_t i = 0; i < pySystems.size(); i++)
+	std::weak_ptr<p2World> Physics2dManager::GetWorld() const
 	{
-		if (pySystems[i] != nullptr)
+		return m_World;
+	}
+
+	p2World* Physics2dManager::GetWorldRaw() const
+	{
+		return m_World.get();
+	}
+
+
+	void Physics2dManager::Destroy()
+	{
+		if (m_World != nullptr)
 		{
-			pySystems[i]->OnContact(colliderA, colliderB, false);
+			m_World = nullptr;
+		}
+		if (m_ContactListener != nullptr)
+		{
+			m_ContactListener = nullptr;
+		}
+
+	}
+
+	void Physics2dManager::OnBeforeSceneLoad()
+	{
+		Destroy();
+		OnEngineInit();
+	}
+
+	void Physics2dManager::OnAfterSceneLoad()
+	{
+	}
+
+
+	Body2dManager* Physics2dManager::GetBodyManager()
+	{
+		return &m_BodyManager;
+	}
+
+	ColliderManager* Physics2dManager::GetColliderManager()
+	{
+		return &m_ColliderManager;
+	}
+	/*
+	float Physics2dManager::Raycast(Vec2f startPoint, Vec2f direction, float rayLength)
+	{
+		RaycastCallback rayCastCallback;
+		rayCastCallback.fraction = 1.0f;
+		m_World->RayCast(&rayCastCallback, pixel2meter(startPoint), pixel2meter(startPoint+direction*rayLength));
+		return rayCastCallback.fraction;
+	}
+	*/
+	void ContactListener::BeginContact(p2Contact* contact)
+	{
+		auto* pythonEngine = m_Engine.GetPythonEngine();
+		const auto colliderA = static_cast<ColliderData*>(contact->GetColliderA()->GetUserData());
+		const auto colliderB = static_cast<ColliderData*>(contact->GetColliderB()->GetUserData());
+
+		/*{
+			std::ostringstream oss;
+			oss << "Begin Contact between: " << colliderA->entity << " and: " << colliderB->entity;
+			Log::GetInstance()->Msg(oss.str());
+		}*/
+
+		auto& pySystems = pythonEngine->GetPySystemManager().GetPySystems();
+		for (size_t i = 0; i < pySystems.size(); i++)
+		{
+			if (pySystems[i] != nullptr)
+			{
+				pySystems[i]->OnContact(colliderA, colliderB, true);
+			}
+		}
+
+	}
+
+	void ContactListener::EndContact(p2Contact* contact)
+	{
+		auto pythonEngine = m_Engine.GetPythonEngine();
+		auto* colliderA = static_cast<ColliderData*>(contact->GetColliderA()->GetUserData());
+		auto* colliderB = static_cast<ColliderData*>(contact->GetColliderB()->GetUserData());
+
+		/*{
+			std::ostringstream oss;
+			oss << "End Contact between: " << colliderA->entity << " and: " << colliderB->entity;
+			Log::GetInstance()->Msg(oss.str());
+		}*/
+
+		auto& pySystems = pythonEngine->GetPySystemManager().GetPySystems();
+		for (size_t i = 0; i < pySystems.size(); i++)
+		{
+			if (pySystems[i] != nullptr)
+			{
+				pySystems[i]->OnContact(colliderA, colliderB, false);
+			}
 		}
 	}
-}
 
 
-float pixel2meter(float pixel)
-{
-	return pixel / Physics2dManager::pixelPerMeter;
-}
-
-float pixel2meter(int pixel)
-{
-	return pixel / Physics2dManager::pixelPerMeter;
-}
-
-p2Vec2 pixel2meter(sf::Vector2f pixel)
-{
-	return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
-}
-
-p2Vec2 pixel2meter(sf::Vector2i pixel)
-{
-	return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
-}
-
-float meter2pixel(float meter)
-{
-	return meter * Physics2dManager::pixelPerMeter;
-}
-
-p2Vec2 pixel2meter(Vec2f pixel)
-{
-	return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
-}
-Vec2f meter2pixel(p2Vec2 meter)
-{
-	return Vec2f(meter2pixel(meter.x), meter2pixel(meter.y));
-}
-
-ContactListener::ContactListener(Engine& engine):
-	m_Engine(engine)
-{
-}
-/*
-float32 RaycastCallback::ReportFixture(b2Fixture *fixture, const p2Vec2 &point, const p2Vec2 &normal, float32 fraction)
-{
-	if(fraction < this->fraction)
+	float pixel2meter(float pixel)
 	{
-		this->fraction = fraction;
-		touchedFixture = fixture;
+		return pixel / Physics2dManager::pixelPerMeter;
 	}
-	return 1.0f;
-}
-*/
+
+	float pixel2meter(int pixel)
+	{
+		return pixel / Physics2dManager::pixelPerMeter;
+	}
+
+	p2Vec2 pixel2meter(sf::Vector2f pixel)
+	{
+		return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
+	}
+
+	p2Vec2 pixel2meter(sf::Vector2i pixel)
+	{
+		return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
+	}
+
+	float meter2pixel(float meter)
+	{
+		return meter * Physics2dManager::pixelPerMeter;
+	}
+
+	p2Vec2 pixel2meter(Vec2f pixel)
+	{
+		return p2Vec2(pixel2meter(pixel.x), pixel2meter(pixel.y));
+	}
+	Vec2f meter2pixel(p2Vec2 meter)
+	{
+		return Vec2f(meter2pixel(meter.x), meter2pixel(meter.y));
+	}
+
+	ContactListener::ContactListener(Engine& engine) :
+		m_Engine(engine)
+	{
+	}
+	/*
+	float32 RaycastCallback::ReportFixture(b2Fixture *fixture, const p2Vec2 &point, const p2Vec2 &normal, float32 fraction)
+	{
+		if(fraction < this->fraction)
+		{
+			this->fraction = fraction;
+			touchedFixture = fixture;
+		}
+		return 1.0f;
+	}
+	*/
 }

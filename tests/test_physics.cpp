@@ -139,13 +139,13 @@ TEST(Physics, TestShapeContact)
 			{"size",{100,100}}
 		},
 		{
-			{"name","Rect Shape Component"},
+			{"name","Circle Shape Component"},
 			{"type",sfge::ComponentType::SHAPE2D},
 			{"shape_type", sfge::ShapeType::CIRCLE},
 			{"radius",100}
 		}
 	};
-	json colliders[] =
+		json colliders[] =
 	{
 		{
 			{"name","Rect Collider"},
@@ -182,7 +182,7 @@ TEST(Physics, TestShapeContact)
 		};
 
 		int randShapeIndex = rand() % 2;
-		entityJson["components"] = { transformJson, shapes[randShapeIndex], rigidbody, colliders[randShapeIndex] };
+		entityJson["components"] = { transformJson, shapes[randShapeIndex] , rigidbody, colliders[randShapeIndex] };
 
 	}
 	sceneJson["entities"] = entities;

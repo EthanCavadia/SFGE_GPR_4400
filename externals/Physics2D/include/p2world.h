@@ -28,8 +28,9 @@ SOFTWARE.
 #include <p2vector.h>
 #include <p2body.h>
 #include <p2contact.h>
-#include "p2quadtree.h"
+
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "p2quadtree.h"
 
 const size_t MAX_BODY_LEN = 256;
 
@@ -39,7 +40,7 @@ const size_t MAX_BODY_LEN = 256;
 class p2World
 {
 public:
-	p2World(p2Vec2 gravity);
+	p2World(p2Vec2 gravity, sf::Vector2i screenResolution);
 	/**
 	* \brief Simulate a new step of the physical world, simplify the resolution with a QuadTree, generate the new contacts
 	*/
@@ -52,11 +53,15 @@ public:
 	* \brief Set the contact listener
 	*/
 	void SetContactListener(p2ContactListener* contactListener);
+
+	p2QuadTree* GetQuad();
 private:
 	p2Vec2 m_Gravity;
-	std::vector<p2Body> m_Bodies;
+	std::vector<p2Body*> m_Bodies;
+	std::vector<p2Body*> m_ReturnBodies;
 	int m_BodyIndex = 0;
-	std::unique_ptr<sf::RenderWindow> m_Window;
+	p2QuadTree rootQuad;
+	
 };
 
 #endif

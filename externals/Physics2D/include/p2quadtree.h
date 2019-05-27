@@ -38,6 +38,7 @@ SOFTWARE.
 class p2QuadTree
 {
 public:
+	p2QuadTree();
 	p2QuadTree(int nodeLevel, p2AABB bounds);
 	~p2QuadTree();
 
@@ -53,7 +54,7 @@ public:
 	/**
 	* Get the index of the child trees of the p2Body
 	*/
-	int GetIndex(p2Body* obj);
+	//int GetIndex(p2Body* obj);
 	/**
 	* Insert a new p2Body in the tree
 	*/
@@ -61,9 +62,15 @@ public:
 	/**
 	* Return a list of all the p2Body that might collide
 	*/
-	std::vector<p2Body*> Retrieve(std::vector<p2Body*> retunrObj, p2Body* obj);
-	
+	void Retrieve(std::vector<p2Body*>& returnObj);
+
+	void GetAABBRecursively(std::vector<p2AABB>& quad);
 private:
+	/**
+	 *Find the
+	 */
+	bool FindEligibleChild(p2Body* obj);
+	
 	static const int MAX_OBJECTS = 10;
 	static const int MAX_LEVELS = 5;
 	static const int CHILD_TREE_NMB = 4;

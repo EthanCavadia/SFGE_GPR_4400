@@ -22,7 +22,7 @@ namespace sfge::ext
 		m_TextureManager = m_Engine.GetGraphics2dManager()->GetTextureManager();
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 		m_Graphics2DManager = m_Engine.GetGraphics2dManager();
-
+		m_PhysicsManager = m_Engine.GetPhysicsManager();
 
 		auto config = m_Engine.GetConfig();
 		fixedDeltaTime = config->fixedDeltaTime;
@@ -53,7 +53,8 @@ namespace sfge::ext
 	void AabbTest::OnFixedUpdate()
 	{
 		rmt_ScopedCPUSample(AabbTestFixedUpdate, 0);
-
+		quadTreeAABB.clear();
+		//m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
 	}
 
 	void AabbTest::OnDraw()
@@ -63,6 +64,11 @@ namespace sfge::ext
 		{
 			DrawAABB(bodies[i]->GetAABB());
 		}
+
+		/*for (auto i = 0u; i < quadTreeAABB.size(); i ++)
+		{
+			DrawQuadTree(quadTreeAABB[i]);
+		}*/
 	}
 
 	void AabbTest::DrawAABB(p2AABB aabb)
@@ -72,4 +78,11 @@ namespace sfge::ext
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
 	}
+	/*void AabbTest::DrawQuadTree(p2AABB aabb)
+	{
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
+	}*/
 }

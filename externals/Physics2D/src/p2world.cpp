@@ -23,41 +23,58 @@ SOFTWARE.
 */
 #include <p2world.h>
 #include <iostream>
+#include <p2QuadTree.h>
 
-
-p2World::p2World(p2Vec2 gravity): m_Gravity(gravity)
+p2World::p2World(p2Vec2 gravity, sf::Vector2i screenResolution): m_Gravity(gravity)
 {
+	p2Vec2 screenRes = p2Vec2(screenResolution.x, screenResolution.y) / 100;
+	p2AABB rootAABB;
+	rootAABB.bottomLeft = p2Vec2(0, screenRes.y);
+	rootAABB.topRight = p2Vec2(screenRes.x, 0);
 	m_Bodies.resize(MAX_BODY_LEN);
+	rootQuad = p2QuadTree(0, rootAABB);
 }
 
 void p2World::Step(float dt)
 {
-	for (p2Body& body : m_Bodies) 
+	for (p2Body* body : m_Bodies)
 	{
-		if (body.GetType() == p2BodyType::DYNAMIC) 
+		if (body->GetType() == p2BodyType::DYNAMIC)
 		{
-			body.SetLinearVelocity(body.GetLinearVelocity() + m_Gravity * dt);
-			body.ApplyForceToCenter(m_Gravity * dt);
-			body.SetPosition(body.GetPosition() + body.GetLinearVelocity() * dt);
-			std::cout << body.GetLinearVelocity().y << std::endl;
+			body->SetLinearVelocity(body->GetLinearVelocity() + m_Gravity * dt);
+			body->ApplyForceToCenter(m_Gravity * dt);
+			body->SetPosition(body->GetPosition() + body->GetLinearVelocity() * dt);
+			std::cout << body->GetLinearVelocity().y << std::endl;
 		}
 
-		body.BuildAABB();
+		body->BuildAABB();
 	}
-
 	// Quadtree
-	p2QuadTree(5, )
+
+	m_ReturnBodies.clear();
+	rootQuad.Retrieve(m_ReturnBodies);
+	rootQuad.Clear();
+	for (p2Body* body : m_Bodies)
+	{
+		rootQuad.Insert(body);
+	}
 	// Check for collision
 }
 
 p2Body * p2World::CreateBody(p2BodyDef* bodyDef)
 {
-	p2Body& body = m_Bodies[m_BodyIndex];
-	body.Init(bodyDef);
+	p2Body* body = m_Bodies[m_BodyIndex];
+	body->Init(bodyDef);
 	m_BodyIndex++;
-	return &body;
+	return body;
 }
 
 void p2World::SetContactListener(p2ContactListener * contactListener)
 {
 }
+
+p2QuadTree * p2World::GetQuad()
+{
+	return &rootQuad;
+}
+
