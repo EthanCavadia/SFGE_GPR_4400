@@ -14,6 +14,7 @@ namespace sfge
 	class Body2dManager;
 	class TextureManager;
 	class SpriteManager;
+	class Physics2dManager;
 }
 
 namespace sfge::ext
@@ -42,7 +43,7 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 		Graphics2dManager* m_Graphics2DManager;
 		Physics2dManager* m_PhysicsManager;
-
+		p2QuadTree* m_QuadTree;
 
 		void DrawAABB(p2AABB aabb);
 		void DrawQuadTree(p2AABB aabb);

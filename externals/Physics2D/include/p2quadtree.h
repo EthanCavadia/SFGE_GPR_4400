@@ -25,9 +25,7 @@ SOFTWARE.
 #ifndef SFGE_P2QUADTREE_H
 #define SFGE_P2QUADTREE_H
 
-#include <list>
 
-#include <p2vector.h>
 #include <p2aabb.h>
 #include <p2body.h>
 #include "SFML/Window/Window.hpp"
@@ -41,7 +39,7 @@ public:
 	p2QuadTree();
 	p2QuadTree(int nodeLevel, p2AABB bounds);
 	~p2QuadTree();
-
+	p2QuadTree& operator=(p2QuadTree & other);
 	/**
 	* Remove all objects leafs and quadtrees children
 	*/
@@ -52,10 +50,6 @@ public:
 	void Split();
 
 	/**
-	* Get the index of the child trees of the p2Body
-	*/
-	//int GetIndex(p2Body* obj);
-	/**
 	* Insert a new p2Body in the tree
 	*/
 	void Insert(p2Body* obj);
@@ -64,18 +58,18 @@ public:
 	*/
 	void Retrieve(std::vector<p2Body*>& returnObj);
 
-	void GetAABBRecursively(std::vector<p2AABB>& quad);
+	void GetAABBRecursively(std::vector<p2AABB>& quad) const;
+	
 private:
-	/**
-	 *Find the
-	 */
+	
 	bool FindEligibleChild(p2Body* obj);
 	
-	static const int MAX_OBJECTS = 10;
+	static const int MAX_OBJECTS = 2;
 	static const int MAX_LEVELS = 5;
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;
-	p2QuadTree* nodes[CHILD_TREE_NMB] = { nullptr };
+	bool m_HasChildren;
+	std::unique_ptr<p2QuadTree> nodes[CHILD_TREE_NMB];
 	std::vector<p2Body*> m_Objects;
 	p2AABB m_Bounds;
 	

@@ -40,7 +40,7 @@ void editor::ColliderInfo::DrawOnInspector()
 		/*
       switch (data->fixture->GetShape()->m_type)
       {
-      	case b2Shape::e_circle:
+      	case p2Shape::e_circle:
       		ImGui::LabelText("Shape", "Circle");
       		break;
         case b2Shape::e_polygon:
@@ -54,8 +54,8 @@ void editor::ColliderInfo::DrawOnInspector()
 		  	break;
 		  default:
 		  	break;
-      }
-		*/
+      }*/
+		
     }
   }
 }

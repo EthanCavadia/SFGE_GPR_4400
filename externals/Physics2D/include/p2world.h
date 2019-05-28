@@ -28,7 +28,6 @@ SOFTWARE.
 #include <p2vector.h>
 #include <p2body.h>
 #include <p2contact.h>
-
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "p2quadtree.h"
 
@@ -57,7 +56,7 @@ public:
 	p2QuadTree* GetQuad();
 private:
 	p2Vec2 m_Gravity;
-	std::vector<p2Body*> m_Bodies;
+	std::vector<p2Body> m_Bodies;
 	std::vector<p2Body*> m_ReturnBodies;
 	int m_BodyIndex = 0;
 	p2QuadTree rootQuad;

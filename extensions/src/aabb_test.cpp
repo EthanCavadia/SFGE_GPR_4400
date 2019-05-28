@@ -1,7 +1,6 @@
 #include <extensions/aabb_test.h>
 #include <engine/engine.h>
 #include <engine/config.h>
-#include <graphics/graphics2d.h>
 #include <physics/physics2d.h>
 
 
@@ -35,6 +34,7 @@ namespace sfge::ext
 			auto body = m_Body2DManager->GetComponentPtr(entities[i]);
 			bodies.push_back(body->GetBody());
 		}
+		//m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
 	}
 
 	void AabbTest::OnUpdate(float dt)
@@ -54,7 +54,8 @@ namespace sfge::ext
 	{
 		rmt_ScopedCPUSample(AabbTestFixedUpdate, 0);
 		quadTreeAABB.clear();
-		//m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
+		m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
+		std::cout << "Quad list size :" << quadTreeAABB.size() << std::endl;
 	}
 
 	void AabbTest::OnDraw()
@@ -65,10 +66,10 @@ namespace sfge::ext
 			DrawAABB(bodies[i]->GetAABB());
 		}
 
-		/*for (auto i = 0u; i < quadTreeAABB.size(); i ++)
+		for (auto i = 0u; i < quadTreeAABB.size(); i ++)
 		{
 			DrawQuadTree(quadTreeAABB[i]);
-		}*/
+		}
 	}
 
 	void AabbTest::DrawAABB(p2AABB aabb)
@@ -78,11 +79,11 @@ namespace sfge::ext
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
 	}
-	/*void AabbTest::DrawQuadTree(p2AABB aabb)
+	void AabbTest::DrawQuadTree(p2AABB aabb)
 	{
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
 		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
-	}*/
+	}
 }

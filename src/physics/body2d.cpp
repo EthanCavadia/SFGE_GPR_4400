@@ -29,6 +29,7 @@ SOFTWARE.
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <engine/engine.h>
+
 namespace sfge
 {
 Body2d::Body2d() : Offsetable(sf::Vector2f())

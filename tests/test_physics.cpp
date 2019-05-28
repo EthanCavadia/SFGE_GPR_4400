@@ -127,22 +127,23 @@ TEST(Physics, TestShapeContact)
 	json sceneJson;
 	sceneJson["name"] = "Contacts";
 
-	const int entitiesNmb = 10;
+	const int entitiesNmb = 20;
 	json entities[entitiesNmb];
 
 	json shapes[] =
 	{
 		{
-			{"name","Rect Shape Component"},
+			{"name","Rect Shape Component"}
+			,
 			{"type",sfge::ComponentType::SHAPE2D},
 			{"shape_type", sfge::ShapeType::RECTANGLE},
-			{"size",{100,100}}
+			{"size",{50,50}}
 		},
 		{
-			{"name","Circle Shape Component"},
+			{"name","Rect Shape Component"},
 			{"type",sfge::ComponentType::SHAPE2D},
 			{"shape_type", sfge::ShapeType::CIRCLE},
-			{"radius",100}
+			{"radius",50}
 		}
 	};
 		json colliders[] =
@@ -151,14 +152,14 @@ TEST(Physics, TestShapeContact)
 			{"name","Rect Collider"},
 			{"type", sfge::ComponentType::COLLIDER2D},
 			{"collider_type",sfge::ColliderType::BOX},
-			{"size",{100,100}},
+			{"size",{50,50}},
 			{"sensor",true}
 		},
 		{
 			{"name","Circle Collider"},
 			{"type", sfge::ComponentType::COLLIDER2D},
 			{"collider_type",sfge::ColliderType::CIRCLE},
-			{"radius",100},
+			{"radius",50},
 			{"sensor",true}
 		}
 	};
@@ -185,6 +186,7 @@ TEST(Physics, TestShapeContact)
 		entityJson["components"] = { transformJson, shapes[randShapeIndex] , rigidbody, colliders[randShapeIndex] };
 
 	}
+
 	sceneJson["entities"] = entities;
 	sceneJson["systems"] = json::array({
 		{
