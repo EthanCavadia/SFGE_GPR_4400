@@ -46,6 +46,10 @@ struct p2Vec2
 	p2Vec2& operator*=(float f);
 	p2Vec2 operator /(float f) const;
 	p2Vec2 operator *(float f) const;
+	bool operator>(const p2Vec2& rhs) const;
+	bool operator>=(const p2Vec2& rhs) const;
+	bool operator<(const p2Vec2& rhs) const;
+	bool operator<=(const p2Vec2& rhs) const;
 	/**
 	* \brief Dot product of two vectors
 	*/

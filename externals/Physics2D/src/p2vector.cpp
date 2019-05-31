@@ -27,8 +27,8 @@ SOFTWARE.
 
 p2Vec2::p2Vec2()
 {
-	x = 1.0f;
-	y = 1.0f;
+	x = 0.0f;
+	y = 0.0f;
 }
 
 p2Vec2::p2Vec2(float x, float y)
@@ -51,7 +51,7 @@ p2Vec2& p2Vec2::operator+=(const p2Vec2& v)
 
 p2Vec2 p2Vec2::operator-(const p2Vec2& v) const
 {
-	return p2Vec2(x-v.x, y-v.y);
+	return p2Vec2(x - v.x, y - v.y);
 }
 
 p2Vec2& p2Vec2::operator-=(const p2Vec2& v)
@@ -76,6 +76,26 @@ p2Vec2 p2Vec2::operator/(float f) const
 p2Vec2 p2Vec2::operator*(float f) const
 {
 	return p2Vec2(x*f, y*f);
+}
+
+bool p2Vec2::operator>(const p2Vec2& rhs) const
+{
+	return x > rhs.x && y > rhs.y;
+}
+
+bool p2Vec2::operator>=(const p2Vec2& rhs) const
+{
+	return x >= rhs.x && y >= rhs.y;
+}
+
+bool p2Vec2::operator<(const p2Vec2& rhs) const
+{
+	return x < rhs.x && y < rhs.y;
+}
+
+bool p2Vec2::operator<=(const p2Vec2& rhs) const
+{
+	return x <= rhs.x && y <= rhs.y;
 }
 
 float p2Vec2::Dot(p2Vec2 v1, p2Vec2 v2)

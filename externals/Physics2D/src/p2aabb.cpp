@@ -23,6 +23,7 @@ SOFTWARE.
 */
 
 #include <p2aabb.h>
+#include <iostream>
 
 p2Vec2 p2AABB::GetCenter()
 {
@@ -31,11 +32,45 @@ p2Vec2 p2AABB::GetCenter()
 
 p2Vec2 p2AABB::GetExtends() const
 {
-	return {topRight - bottomLeft};
+	return { topRight - bottomLeft };
 }
 
 void p2AABB::SetAABB(p2Vec2 center, p2Vec2 extend)
 {
+	extend = p2Vec2(extend.x, -extend.y);
 	topRight = center + extend;
 	bottomLeft = center - extend;
+}
+
+float p2AABB::XMin() const
+{
+	return bottomLeft.x;
+}
+
+float p2AABB::XMax() const
+{
+	return topRight.x;
+}
+
+float p2AABB::YMin() const
+{
+	return topRight.y;
+}
+
+float p2AABB::YMax() const
+{
+	return bottomLeft.y;
+}
+
+bool p2AABB::DoContain(const p2Vec2 position) const
+{
+	return position > bottomLeft && position < topRight;
+}
+
+bool p2AABB::DoOverlapWith(const p2AABB aabb) const
+{
+	const auto bottomRight = p2Vec2(aabb.topRight.x, aabb.topRight.y - aabb.GetExtends().y);
+	const auto topLeft = p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y + aabb.GetExtends().y);
+
+	return DoContain(aabb.topRight) || DoContain(aabb.bottomLeft) || DoContain(bottomRight) || DoContain(topLeft);
 }

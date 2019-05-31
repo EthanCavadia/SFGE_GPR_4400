@@ -26,6 +26,7 @@ SOFTWARE.
 #define SFGE_P2CONTACT_H
 
 #include <p2collider.h>
+#include <vector>
 
 /**
 * \brief Representation of a contact given as argument in a p2ContactListener
@@ -52,6 +53,15 @@ public:
 */
 class p2ContactManager
 {
+public:
+	p2ContactManager() {};
+	p2ContactManager(p2ContactListener* listener) : m_ContactListener(listener) {};
+	void SetContactListener(p2ContactListener * listener);
 
+private:
+	// Private attributes.
+	p2ContactListener* m_ContactListener = nullptr;
+	std::vector<p2Contact> m_CurrentContacts = std::vector<p2Contact>();
+	
 };
 #endif

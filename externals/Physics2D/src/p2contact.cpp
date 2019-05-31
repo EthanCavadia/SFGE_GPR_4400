@@ -24,6 +24,12 @@ SOFTWARE.
 
 #include <p2contact.h>
 
+
+void p2ContactManager::SetContactListener(p2ContactListener* listener)
+{
+	m_ContactListener = listener;
+}
+
 p2Collider * p2Contact::GetColliderA()
 {
 	return nullptr;

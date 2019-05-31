@@ -1,244 +1,132 @@
 #include "p2quadtree.h"
 #include <memory>
+#include <iostream>
 
+p2QuadTree::p2QuadTree(){}
 
-p2QuadTree::p2QuadTree()
-{
-	m_NodeLevel = -1;
-	m_Bounds = p2AABB();
-	m_HasChildren = false;
-	nodes[0] = nullptr;
-	nodes[1] = nullptr;
-	nodes[2] = nullptr;
-	nodes[3] = nullptr;
-	
-	m_Objects = std::vector<p2Body*>();
-}
-
-p2QuadTree::p2QuadTree(int nodeLevel, p2AABB bounds)
+p2QuadTree::p2QuadTree(const int nodeLevel, p2AABB bounds)
 {
 	// Set base values
 	m_NodeLevel = nodeLevel;
 	m_Bounds = bounds;
-	m_HasChildren = false;
-	nodes[0] = nullptr;
-	nodes[1] = nullptr;
-	nodes[2] = nullptr;
-	nodes[3] = nullptr;
-	m_Objects = std::vector<p2Body*>();
-}
-
-p2QuadTree::~p2QuadTree()
-{
-}
-
-p2QuadTree& p2QuadTree::operator=(p2QuadTree & other)
-{
-	m_NodeLevel = other.m_NodeLevel;
-	m_Bounds = other.m_Bounds;
-	m_HasChildren = other.m_HasChildren;
-	nodes[0] = std::move(other.nodes[0]);
-	nodes[1] = std::move(other.nodes[1]);
-	nodes[2] = std::move(other.nodes[2]);
-	nodes[3] = std::move(other.nodes[3]);
-	m_Objects = other.m_Objects;
-	return *this;
 }
 
 void p2QuadTree::Clear()
 {
-	if (m_HasChildren)
-	{
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
-		{
-			for (p2Body* body : nodes[i]->m_Objects)
-			{
-				nodes[i]->Clear();
-			}
-
-			nodes[i] = nullptr;
-		}
-	}
-	if (m_NodeLevel == 0 && m_Objects.size() > 0)
-	{
-		m_Objects.clear();
-	}
-
-	m_HasChildren = false;
+	m_Objects.clear();
+	nodes.clear();
+	nodes.reserve(CHILD_TREE_NMB);
 }
 
 void p2QuadTree::Split()
 {
-	if (m_NodeLevel > MAX_LEVELS)
-		return;
+	if (m_NodeLevel > MAX_LEVELS) return;
 
-	p2Vec2 currentPosition = m_Bounds.bottomLeft;
-	p2Vec2 childSizeExtend = (m_Bounds.GetExtends() / 2.f);
-	
-	m_HasChildren = true;
+	// Set the current position
+	auto currentPosition = m_Bounds.bottomLeft;
 
-	p2AABB childAABB = p2AABB();
+	// Define the size of the child sides depending on the amount of child tree number
+	const auto childSize = (m_Bounds.topRight - currentPosition) / sqrt(CHILD_TREE_NMB);
 
-	for (int i = 0; i < CHILD_TREE_NMB; i++)
+	for (auto x = 0; x < sqrt(CHILD_TREE_NMB); ++x)
 	{
-		nodes[i] = std::make_unique<p2QuadTree>();
-		nodes[i]->m_NodeLevel = m_NodeLevel + 1;
+		for (auto y = 0; y < sqrt(CHILD_TREE_NMB); ++y)
+		{
+			p2AABB childAabb;
+
+			currentPosition = m_Bounds.bottomLeft + p2Vec2(childSize.x * x, childSize.y * y);
+
+			childAabb.bottomLeft = currentPosition;
+			childAabb.topRight = currentPosition + childSize;
+
+			// Add the node to the child array
+			nodes.push_back(new p2QuadTree(m_NodeLevel + 1, childAabb));
+		}
 	}
 
-	//First quad Top Right child
-	childAABB.bottomLeft = m_Bounds.GetCenter();
-	childAABB.topRight = m_Bounds.topRight;
-	nodes[0]->m_Bounds = childAABB;
+	for (auto& obj : m_Objects)
+	{
+		for (auto* child : nodes)
+		{
+			if (child->m_Bounds.DoOverlapWith(obj->GetAABB())) child->Insert(obj);
+		}
+	}
 
-	//Top left child
-	childAABB.bottomLeft = currentPosition - p2Vec2(0,childSizeExtend.y);
-	childAABB.topRight = childAABB.bottomLeft + childAABB.GetExtends();
-	nodes[1]->m_Bounds = childAABB;
+	m_Objects.clear();
+}
 
-	//Bottom left child
-	childAABB.bottomLeft = m_Bounds.bottomLeft;
-	childAABB.topRight = m_Bounds.GetCenter();
-	nodes[2]->m_Bounds = childAABB;
+int p2QuadTree::GetIndex(p2Body* rect)
+{
+	for (auto& body : m_Objects)
+	{
+		if (body == rect) return m_NodeLevel;
+	}
 
-	//Bottom right child
-	childAABB.bottomLeft = m_Bounds.GetCenter() + p2Vec2(0, childSizeExtend.y);
-	childAABB.topRight = m_Bounds.GetCenter() + p2Vec2(0, childSizeExtend.x);
-	nodes[3]->m_Bounds = childAABB;
+	for (auto& child : nodes)
+	{
+		child->GetIndex(rect);
+	}
+
+	return 0;
 }
 
 void p2QuadTree::Insert(p2Body* obj)
 {
-	if (m_HasChildren)
+	if (!nodes.empty())
 	{
-		if (m_Objects.size() < MAX_OBJECTS)
+		for (auto* child : nodes)
 		{
-			//Insert body here
-			m_Objects.push_back(obj);
-		}
-		else
-		{
-			if (m_NodeLevel <= MAX_LEVELS)
-			{
-				Split();
-				//Insert my bodies in children
-				std::vector<p2Body*> m_ObjectCopy = m_Objects;
-				m_Objects.clear();
-				for each (p2Body* obj1 in m_ObjectCopy)
-				{
-					std::vector<p2QuadTree*> eligibleChildren;
-					//Insert object in children
-					for (int i = 0; i < CHILD_TREE_NMB; i++)
-					{
-						if (FindEligibleChild(obj1))
-						{
-							eligibleChildren.push_back(nodes[i].get());
-						}
-					}
-					if (eligibleChildren.size() == 1)
-					{
-						eligibleChildren.at(0)->Insert(obj1);
-					}
-					else
-					{
-						m_Objects.push_back(obj1);
-					}
-				}
-				//Add last body
-				std::vector<p2QuadTree*> eligibleChildren;
-				//Insert object in children
-				for (int i = 0; i < CHILD_TREE_NMB; i++)
-				{
-					if (FindEligibleChild(obj))
-					{
-						eligibleChildren.push_back(nodes[i].get());
-					}
-					if (eligibleChildren.size() < 2 && eligibleChildren.size() > 0)
-					{
-						eligibleChildren[0]->Insert(obj);
-					}
-					else
-					{
-						m_Objects.push_back(obj);
-					}
-				}
-				if (eligibleChildren.size() == 1)
-				{
-					eligibleChildren.at(0)->Insert(obj);
-				}
-				else
-				{
-					m_Objects.push_back(obj);
-				}
-			}
-			else
-			{
-				//Insert body here
-				m_Objects.push_back(obj);
-			}
+			if (child->m_Bounds.DoOverlapWith(obj->GetAABB())) child->Insert(obj);
 		}
 	}
 	else
 	{
-		std::vector<p2QuadTree*> eligibleChildren;
-		//Insert object in children
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
-		{
-			if (FindEligibleChild(obj))
-			{
-				eligibleChildren.push_back(nodes[i].get());
-			}
-		}
-		if (eligibleChildren.size() == 1)
-		{
-			eligibleChildren.at(0)->Insert(obj);
-		}
-		else
-		{
-			m_Objects.push_back(obj);
-		}
+		m_Objects.push_back(obj);
+	}
+
+	if (m_Objects.size() > MAX_OBJECTS)
+	{
+		Split();
 	}
 }
 
-void p2QuadTree::Retrieve(std::vector<p2Body*>& returnObj)
+std::vector<p2Body*> p2QuadTree::Retrieve(p2Body* rect)
 {
-	if (m_HasChildren)
+	std::vector<p2Body*> returnValue;
+	for (auto& body : m_Objects)
 	{
-		for (p2Body* obj : m_Objects)
-		{
-			returnObj.push_back(obj);
-		}
+		if (body == rect) returnValue = m_Objects;
+	}
 
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
+	for (auto& child : nodes)
+	{
+		const auto retrieve = child->Retrieve(rect);
+		if (!retrieve.empty())
 		{
-			nodes[i]->Retrieve(returnObj);
+			returnValue = retrieve;
+			break;
 		}
 	}
+
+	return returnValue;
 }
 
-bool p2QuadTree::FindEligibleChild(p2Body* obj)
+void p2QuadTree::SetBounds(p2AABB bounds)
 {
-	if (m_Objects.size() < MAX_OBJECTS)
-	{
-		return true;
-	}
-	else
-	{
-		if (m_NodeLevel < MAX_LEVELS)
-		{
-			return true;
-		}
-		return false;
-	}
+	m_Bounds = bounds;
 }
 
-void p2QuadTree::GetAABBRecursively(std::vector<p2AABB>& quad) const
+p2AABB p2QuadTree::GetBounds() const
 {
-	quad.push_back(m_Bounds);
-	if (m_HasChildren)
-	{
-		for (int i = 0; i < CHILD_TREE_NMB; i++)
-		{
-			nodes[i]->GetAABBRecursively(quad);
-		}
-	}
+	return m_Bounds;
+}
+
+std::vector<p2QuadTree*> p2QuadTree::GetChildren() const
+{
+	return nodes;
+}
+
+std::vector<p2Body*> p2QuadTree::GetObjects() const
+{
+	return m_Objects;
 }

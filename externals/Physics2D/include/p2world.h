@@ -53,14 +53,14 @@ public:
 	*/
 	void SetContactListener(p2ContactListener* contactListener);
 
-	p2QuadTree* GetQuad();
+	p2QuadTree* GetQuad() const;
 private:
 	p2Vec2 m_Gravity;
 	std::vector<p2Body> m_Bodies;
 	std::vector<p2Body*> m_ReturnBodies;
 	int m_BodyIndex = 0;
-	p2QuadTree rootQuad;
-	
+	p2QuadTree* rootQuad;
+	p2ContactManager m_ContactManager;
 };
 
 #endif

@@ -22,19 +22,24 @@ namespace sfge::ext
 		m_SpriteManager = m_Engine.GetGraphics2dManager()->GetSpriteManager();
 		m_Graphics2DManager = m_Engine.GetGraphics2dManager();
 		m_PhysicsManager = m_Engine.GetPhysicsManager();
-
+		m_World = m_PhysicsManager->GetWorldRaw();
+		quadTree = m_World->GetQuad();
 		auto config = m_Engine.GetConfig();
 		fixedDeltaTime = config->fixedDeltaTime;
 		screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
 		auto* entityManager = m_Engine.GetEntityManager();
-
+	
 		entities = entityManager->GetEntitiesWithType(ComponentType::BODY2D);
 		for (auto i = 0u; i < entities.size(); i++)
 		{
 			auto body = m_Body2DManager->GetComponentPtr(entities[i]);
 			bodies.push_back(body->GetBody());
 		}
-		//m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
+
+		p2AABB quadTreeBounds;
+		quadTreeBounds.bottomLeft = p2Vec2(0, 0);
+		quadTreeBounds.topRight = pixel2meter(screenSize);
+		quadTree->SetBounds(quadTreeBounds);
 	}
 
 	void AabbTest::OnUpdate(float dt)
@@ -44,18 +49,17 @@ namespace sfge::ext
 		for (auto i = 0u; i < entities.size(); i++)
 		{
 			auto transform = m_Transform2DManager->GetComponentPtr(entities[i]);
-			transform->EulerAngle += 5*dt;
+			//transform->EulerAngle += 5*dt;
 		}
 		
+		//std::cout << "Quad list size :" << quadTreeAABB.size() << std::endl;
 	}
 
 
 	void AabbTest::OnFixedUpdate()
 	{
 		rmt_ScopedCPUSample(AabbTestFixedUpdate, 0);
-		quadTreeAABB.clear();
-		m_PhysicsManager->GetWorldRaw()->GetQuad()->GetAABBRecursively(quadTreeAABB);
-		std::cout << "Quad list size :" << quadTreeAABB.size() << std::endl;
+		//bodies[0]->GetAABB().Overlaps(bodies[1]->GetAABB());
 	}
 
 	void AabbTest::OnDraw()
@@ -66,24 +70,28 @@ namespace sfge::ext
 			DrawAABB(bodies[i]->GetAABB());
 		}
 
-		for (auto i = 0u; i < quadTreeAABB.size(); i ++)
-		{
-			DrawQuadTree(quadTreeAABB[i]);
-		}
+		DrawQuadTree(quadTree);
 	}
 
-	void AabbTest::DrawAABB(p2AABB aabb)
+	void AabbTest::DrawAABB(p2AABB aabb) const
 	{
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Cyan);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Cyan);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Cyan);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Cyan);
 	}
-	void AabbTest::DrawQuadTree(p2AABB aabb)
+
+	void AabbTest::DrawQuadTree(p2QuadTree * quadTree) const
 	{
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
+		const auto aabb = quadTree->GetBounds();
+		const auto extend = aabb.GetExtends();
+		DrawAABB(quadTree->GetBounds());
+		if (!quadTree->GetChildren().empty())
+		{
+			for (auto& child : quadTree->GetChildren())
+			{
+				DrawQuadTree(child);
+			}
+		}
 	}
 }

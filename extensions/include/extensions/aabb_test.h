@@ -5,6 +5,7 @@
 #include <graphics/graphics2d.h>
 #include <p2body.h>
 #include "p2quadtree.h"
+#include "p2world.h"
 
 
 namespace sfge
@@ -43,17 +44,16 @@ namespace sfge::ext
 		SpriteManager* m_SpriteManager;
 		Graphics2dManager* m_Graphics2DManager;
 		Physics2dManager* m_PhysicsManager;
-		p2QuadTree* m_QuadTree;
-
-		void DrawAABB(p2AABB aabb);
-		void DrawQuadTree(p2AABB aabb);
+		p2World* m_World;
+		
+		void DrawAABB(p2AABB aabb) const;
+		void DrawQuadTree(p2QuadTree* quadTree) const;
 		float fixedDeltaTime = 0.0f;
 		const size_t entitiesNmb = 10'000;
-
+		p2QuadTree* quadTree;
 		sf::Vector2f screenSize;
 		std::vector<p2Body*> bodies;
 		std::vector<Entity> entities;
-		std::vector<p2AABB> quadTreeAABB;
 	};
 
 

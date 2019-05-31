@@ -46,5 +46,11 @@ struct p2AABB
 	*/
 	p2Vec2 GetExtends() const;
 	void SetAABB(p2Vec2 center, p2Vec2 extend);
+	float XMin() const;
+	float XMax() const;
+	float YMin() const;
+	float YMax() const;
+	bool DoContain(const p2Vec2 position) const;
+	bool DoOverlapWith(const p2AABB aabb) const;
 };
 #endif // !SFGE_P2AABB:H
