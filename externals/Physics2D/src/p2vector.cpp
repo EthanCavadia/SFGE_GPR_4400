@@ -100,7 +100,6 @@ bool p2Vec2::operator<=(const p2Vec2& rhs) const
 
 float p2Vec2::Dot(p2Vec2 v1, p2Vec2 v2)
 {
-	//TODO
 	return (v1.x * v2.x) + (v1.y * v2.y);
 }
 
@@ -110,13 +109,11 @@ float p2Vec2::Cross(p2Vec2 v1, p2Vec2 v2)
 }
 float p2Vec2::GetMagnitude() const
 {
-	//TODO
 	return sqrt(pow(x, 2) + pow(y, 2));
 }
 
 p2Vec2 p2Vec2::Normalized()
 {
-	//TODO
 	float magnitude = GetMagnitude();
 	return p2Vec2(x / magnitude, y / magnitude);
 }

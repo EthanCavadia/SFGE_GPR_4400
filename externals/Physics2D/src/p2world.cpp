@@ -40,20 +40,27 @@ void p2World::Step(float dt)
 	rootQuad->Clear();
 	for (p2Body& body : m_Bodies)
 	{
-		rootQuad->Insert(&body);
 		if (body.GetType() == p2BodyType::DYNAMIC)
 		{
 			body.SetLinearVelocity(body.GetLinearVelocity() + m_Gravity * dt);
 			body.ApplyForceToCenter(m_Gravity * dt);
 			body.SetPosition(body.GetPosition() + body.GetLinearVelocity() * dt);
 			//std::cout << body.GetLinearVelocity().y << std::endl;
-		}
+			// Check for collision
 
+		}
 		body.BuildAABB();
+		rootQuad->Insert(&body);
 	}
-	// Quadtree
-	
-	// Check for collision
+
+	for (p2Body& bodies : m_Bodies)
+	{
+		if (!bodies.isInit)
+		{
+			continue;
+		}
+		m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies));
+	}
 }
 
 p2Body* p2World::CreateBody(p2BodyDef* bodyDef)
@@ -66,7 +73,8 @@ p2Body* p2World::CreateBody(p2BodyDef* bodyDef)
 
 void p2World::SetContactListener(p2ContactListener * contactListener)
 {
-	m_ContactManager.SetContactListener(contactListener);
+	this->m_ContactListener = contactListener;
+	this->m_ContactManager.SetContactListener(contactListener);
 }
 
 p2QuadTree* p2World::GetQuad() const

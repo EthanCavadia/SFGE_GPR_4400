@@ -80,15 +80,16 @@ public:
 	float GetMass() const;
 	void BuildAABB();
 	p2AABB GetAABB();
-
+	p2Collider* GetCollider();
+	p2Vec2 normalizedPosition = this->position.Normalized();
+	bool isInit = false;
 private:
 	p2AABB aabb;
 	p2Vec2 position;
 	p2Vec2 linearVelocity;
-	p2BodyType bodyType;
-	float angularVelocity;
-	float mass;
-
+	p2BodyType bodyType  = p2BodyType::STATIC;
+	float angularVelocity = 0;
+	float mass = 0;
 	int m_ColliderIndex = 0;
 	std::vector<p2Collider> m_Colliders;
 };

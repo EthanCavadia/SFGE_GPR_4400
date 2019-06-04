@@ -30,6 +30,7 @@ void p2Body::Init(p2BodyDef* bodyDef)
 	linearVelocity = bodyDef->linearVelocity;
 	bodyType = bodyDef->type;
 	mass = bodyDef->mass;
+	isInit = true;
 }
 
 p2Vec2 p2Body::GetLinearVelocity() const
@@ -92,4 +93,9 @@ float p2Body::GetMass() const
 p2AABB p2Body::GetAABB()
 {
 	return aabb;
+}
+
+p2Collider* p2Body::GetCollider()
+{
+	return &m_Colliders[0];
 }

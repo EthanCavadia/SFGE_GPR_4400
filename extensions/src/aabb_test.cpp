@@ -24,6 +24,7 @@ namespace sfge::ext
 		m_PhysicsManager = m_Engine.GetPhysicsManager();
 		m_World = m_PhysicsManager->GetWorldRaw();
 		quadTree = m_World->GetQuad();
+
 		auto config = m_Engine.GetConfig();
 		fixedDeltaTime = config->fixedDeltaTime;
 		screenSize = sf::Vector2f(config->screenResolution.x, config->screenResolution.y);
@@ -40,6 +41,8 @@ namespace sfge::ext
 		quadTreeBounds.bottomLeft = p2Vec2(0, 0);
 		quadTreeBounds.topRight = pixel2meter(screenSize);
 		quadTree->SetBounds(quadTreeBounds);
+
+
 	}
 
 	void AabbTest::OnUpdate(float dt)
@@ -49,17 +52,15 @@ namespace sfge::ext
 		for (auto i = 0u; i < entities.size(); i++)
 		{
 			auto transform = m_Transform2DManager->GetComponentPtr(entities[i]);
+			
 			//transform->EulerAngle += 5*dt;
 		}
-		
-		//std::cout << "Quad list size :" << quadTreeAABB.size() << std::endl;
 	}
 
 
 	void AabbTest::OnFixedUpdate()
 	{
 		rmt_ScopedCPUSample(AabbTestFixedUpdate, 0);
-		//bodies[0]->GetAABB().Overlaps(bodies[1]->GetAABB());
 	}
 
 	void AabbTest::OnDraw()
@@ -69,23 +70,25 @@ namespace sfge::ext
 		{
 			DrawAABB(bodies[i]->GetAABB());
 		}
-
 		DrawQuadTree(quadTree);
 	}
 
 	void AabbTest::DrawAABB(p2AABB aabb) const
 	{
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Cyan);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Cyan);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Cyan);
-		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Cyan);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Red);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Red);
 	}
 
 	void AabbTest::DrawQuadTree(p2QuadTree * quadTree) const
 	{
 		const auto aabb = quadTree->GetBounds();
-		const auto extend = aabb.GetExtends();
-		DrawAABB(quadTree->GetBounds());
+		
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.topRight.x, aabb.topRight.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.topRight.x, aabb.bottomLeft.y)), sf::Color::Green);
+		m_Graphics2DManager->DrawLine(meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.bottomLeft.y)), meter2pixel(p2Vec2(aabb.bottomLeft.x, aabb.topRight.y)), sf::Color::Green);
 		if (!quadTree->GetChildren().empty())
 		{
 			for (auto& child : quadTree->GetChildren())

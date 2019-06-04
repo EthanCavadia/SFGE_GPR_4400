@@ -3,7 +3,7 @@
 
 #include <engine/system.h>
 #include <graphics/graphics2d.h>
-#include <p2body.h>
+#include <physics/body2d.h>
 #include "p2quadtree.h"
 #include "p2world.h"
 

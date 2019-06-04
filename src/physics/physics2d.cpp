@@ -58,7 +58,7 @@ namespace sfge
 	{
 		rmt_ScopedCPUSample(Physics2dManager, 0);
 		const auto config = m_Engine.GetConfig();
-		if (config != nullptr and m_World != nullptr)
+		if (config != nullptr && m_World != nullptr)
 		{
 			m_World->Step(config->fixedDeltaTime);
 			m_BodyManager.OnFixedUpdate();
@@ -198,8 +198,7 @@ namespace sfge
 		return Vec2f(meter2pixel(meter.x), meter2pixel(meter.y));
 	}
 
-	ContactListener::ContactListener(Engine& engine) :
-		m_Engine(engine)
+	ContactListener::ContactListener(Engine& engine) : m_Engine(engine)
 	{
 	}
 	/*

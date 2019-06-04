@@ -29,6 +29,8 @@ SOFTWARE.
 #include <p2aabb.h>
 #include <p2body.h>
 #include "SFML/Window/Window.hpp"
+#include "p2contact.h"
+
 
 /**
 * \brief Representation of a tree with 4 branches containing p2Body defined by their p2AABB
@@ -61,13 +63,12 @@ public:
 	void SetBounds(p2AABB bounds);
 	p2AABB GetBounds() const;
 	std::vector<p2QuadTree*> GetChildren() const;
-	std::vector<p2Body*> GetObjects() const;
 	std::vector<p2Body*> Retrieve(p2Body* rect);
-
+	std::vector<p2Body*> GetChildrenObj();
 private:
 	
-	static const int MAX_OBJECTS = 2;
-	static const int MAX_LEVELS = 5;
+	static const int MAX_OBJECTS = 10;
+	static const int MAX_LEVELS = 10;
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;
 	std::vector<p2QuadTree*> nodes;

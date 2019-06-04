@@ -4,6 +4,7 @@ p2Collider::p2Collider()
 {
 }
 
+
 void p2Collider::Init(p2ColliderDef* colliderDef)
 {
 	userData = colliderDef->userData;
@@ -18,7 +19,7 @@ bool p2Collider::IsSensor() const
 	return isSensor;
 }
 
-void* p2Collider::GetUserData() const
+void* p2Collider::GetUserData()
 {
 	return userData;
 }
@@ -27,6 +28,13 @@ p2Shape* p2Collider::GetShape() const
 {
 	return shape;
 }
+
+
+p2ColliderType p2Collider::GetColliderType()
+{
+	return colliderType;
+}
+
 
 void p2Collider::SetUserData(void* colliderData)
 {

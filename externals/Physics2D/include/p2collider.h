@@ -43,7 +43,7 @@ enum class p2ColliderType
 */
 struct p2ColliderDef
 {
-	void* userData;
+	void* userData = nullptr;
 	p2Shape* shape;
 	float restitution;
 	bool isSensor = false;
@@ -66,8 +66,9 @@ public:
 	/**
 	* \brief Return the userData
 	*/
-	void* GetUserData() const;
+	void* GetUserData();
 	p2Shape* GetShape() const;
+	p2ColliderType GetColliderType();
 	void SetUserData(void* colliderData);
 	p2AABB BuildAABBCollider(p2Vec2 position);
 

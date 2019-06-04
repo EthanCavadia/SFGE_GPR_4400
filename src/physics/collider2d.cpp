@@ -106,11 +106,11 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 				if (CheckJsonExists(componentJson, "size"))
 				{
 					auto size = pixel2meter(GetVectorFromJson(componentJson, "size"));
-					{
+					/*{
 						std::ostringstream oss;
 						oss << "Box physics size: " << size.x << ", " << size.y;
 						Log::GetInstance()->Msg(oss.str());
-					}
+					}*/
 					boxShape->SetSize(p2Vec2(size.x / 2.0f, size.y / 2.0f));
 				}
 				shape = std::move(boxShape);
@@ -118,12 +118,12 @@ void ColliderManager::CreateComponent(json& componentJson, Entity entity)
 			}	
 			break;
 			default:
-			{
+			/*{
 				std::ostringstream oss;
 				oss << "[Error] Collider of type: " << static_cast<int>(colliderType) << " could not be loaded from json: " << componentJson;
 				Log::GetInstance()->Error(oss.str());
 				fixtureDef.colliderType = p2ColliderType::NONE;
-			}
+			}*/
 				break;
 			}
 		}

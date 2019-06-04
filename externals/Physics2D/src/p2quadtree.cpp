@@ -1,6 +1,7 @@
 #include "p2quadtree.h"
 #include <memory>
 #include <iostream>
+#include "p2contact.h"
 
 p2QuadTree::p2QuadTree(){}
 
@@ -43,26 +44,32 @@ void p2QuadTree::Split()
 			nodes.push_back(new p2QuadTree(m_NodeLevel + 1, childAabb));
 		}
 	}
-
-	for (auto& obj : m_Objects)
+	for (int i = 0; i < m_Objects.size(); i++)
 	{
-		for (auto* child : nodes)
+
+		for (auto& child : nodes)
 		{
-			if (child->m_Bounds.DoOverlapWith(obj->GetAABB())) child->Insert(obj);
+			if (child->m_Bounds.DoOverlapWith(m_Objects[i]->GetAABB()))
+			{
+				child->Insert(m_Objects[i]);
+				m_Objects.erase(m_Objects.begin() + i);
+			}
+			if (m_Objects.size()<= i)
+			{
+				break;
+			}
 		}
 	}
-
-	m_Objects.clear();
 }
 
 int p2QuadTree::GetIndex(p2Body* rect)
 {
-	for (auto& body : m_Objects)
+	for (p2Body* body : m_Objects)
 	{
 		if (body == rect) return m_NodeLevel;
 	}
 
-	for (auto& child : nodes)
+	for (auto* child : nodes)
 	{
 		child->GetIndex(rect);
 	}
@@ -74,9 +81,18 @@ void p2QuadTree::Insert(p2Body* obj)
 {
 	if (!nodes.empty())
 	{
-		for (auto* child : nodes)
+		bool inserted = false;
+		for (auto& node : nodes)
 		{
-			if (child->m_Bounds.DoOverlapWith(obj->GetAABB())) child->Insert(obj);
+			inserted = true;
+			if (node->m_Bounds.DoOverlapWith(obj->GetAABB()))
+			{
+				node->Insert(obj);
+			}
+		}
+		if (inserted == false)
+		{
+			m_Objects.push_back(obj);
 		}
 	}
 	else
@@ -92,23 +108,26 @@ void p2QuadTree::Insert(p2Body* obj)
 
 std::vector<p2Body*> p2QuadTree::Retrieve(p2Body* rect)
 {
-	std::vector<p2Body*> returnValue;
+	std::vector<p2Body*> m_ReturnValue;
 	for (auto& body : m_Objects)
 	{
-		if (body == rect) returnValue = m_Objects;
-	}
-
-	for (auto& child : nodes)
-	{
-		const auto retrieve = child->Retrieve(rect);
-		if (!retrieve.empty())
+		if (body == rect)
 		{
-			returnValue = retrieve;
-			break;
+			std::vector<p2Body*> m_ChildObject = GetChildrenObj();
+			if (!m_ChildObject.empty()) {
+				m_ReturnValue.insert(m_ReturnValue.begin(), m_ChildObject.begin(), m_ChildObject.end());
+			}
 		}
 	}
-
-	return returnValue;
+	for (auto& node : nodes)
+	{
+		const auto retrieve = node->Retrieve(rect);
+		if (m_ReturnValue.empty())
+		{
+			m_ReturnValue = retrieve;
+		}
+	}
+	return m_ReturnValue;
 }
 
 void p2QuadTree::SetBounds(p2AABB bounds)
@@ -121,12 +140,21 @@ p2AABB p2QuadTree::GetBounds() const
 	return m_Bounds;
 }
 
+std::vector<p2Body*> p2QuadTree::GetChildrenObj()
+{
+	std::vector<p2Body*> m_ReturnValue = m_Objects;
+	for (auto node : nodes)
+	{
+		std::vector<p2Body*> m_ChildObject = node->GetChildrenObj();
+		if (!m_ChildObject.empty())
+		{
+			m_ReturnValue.insert(m_ReturnValue.begin(), m_ChildObject.begin(), m_ChildObject.end());
+		}
+	}
+	return m_ReturnValue;
+}
+
 std::vector<p2QuadTree*> p2QuadTree::GetChildren() const
 {
 	return nodes;
-}
-
-std::vector<p2Body*> p2QuadTree::GetObjects() const
-{
-	return m_Objects;
 }

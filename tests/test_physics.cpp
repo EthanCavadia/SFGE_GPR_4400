@@ -26,6 +26,7 @@ SOFTWARE.
 #include <gtest/gtest.h>
 #include "graphics/shape2d.h"
 #include "physics/collider2d.h"
+#include "json.hpp"
 
 TEST(Physics, TestBallFallingToGround)
 {
@@ -44,7 +45,7 @@ TEST(Physics, TestBallFallingToGround)
 
 	json transformJson1;
 	transformJson1["type"] = sfge::ComponentType::TRANSFORM2D;
-	transformJson1["position"] = { 1280 / 2, 720 /2 };
+	transformJson1["position"] = { 200, 300 };
 	transformJson1["scale"] = { 1.0,1.0 };
 	transformJson1["angle"] = 0.0;
 
@@ -57,7 +58,7 @@ TEST(Physics, TestBallFallingToGround)
 	json rigidBodyJson1;
 	rigidBodyJson1["name"] = "Rigidbody";
 	rigidBodyJson1["type"] = sfge::ComponentType::BODY2D;
-	rigidBodyJson1["body_type"] = p2BodyType::STATIC;
+	rigidBodyJson1["body_type"] = p2BodyType::DYNAMIC;
 
 	json circleColliderJson;
 	circleColliderJson["name"] = "Circle Collider";
@@ -74,7 +75,7 @@ TEST(Physics, TestBallFallingToGround)
 
 	json transformJson2;
 	transformJson2["type"] = sfge::ComponentType::TRANSFORM2D;
-	transformJson2["position"] = { 1280 / 2, 720 / 2 };
+	transformJson2["position"] = { 300, 600 };
 	transformJson2["scale"] = { 1.0,1.0 };
 	transformJson2["angle"] = 0.0;
 
@@ -99,23 +100,13 @@ TEST(Physics, TestBallFallingToGround)
 	entityBody2["components"] = { transformJson2, rectShapeJson, rigidBodyJson2, rectColliderJson };
 
 	sceneJson["entities"] = { entityBody1, entityBody2 };
-	json contactDebugSystem = {
-		{ "script_path", "scripts/contact_debug_system.py" }
-	};
-	json raycastDebugJson =
-	{
-		{ "script_path", 
-			//"scripts/mouse_raycast_system.py" 
-			"nothing"
-		}
-	};
-	//sceneJson["systems"] = json::array({ contactDebugSystem, raycastDebugJson });
-	sceneJson["systems"] = json::array({
+
+	sceneJson["systems"] = nlohmann::json::array({
 		{
 			{ "script_path", "scripts/contact_debug_system.py" }
 		},
 		{
-			{ "script_path", "scripts/stay_onscreen_system.py" }
+			//{ "script_path", "scripts/stay_onscreen_system.py" }
 		},
 		{
 			{ "script_path",
@@ -144,7 +135,7 @@ TEST(Physics, TestShapeContact)
 	json sceneJson;
 	sceneJson["name"] = "Contacts";
 
-	const int entitiesNmb = 10;
+	const int entitiesNmb = 200;
 	json entities[entitiesNmb];
 
 	json shapes[] =
@@ -154,13 +145,13 @@ TEST(Physics, TestShapeContact)
 			,
 			{"type",sfge::ComponentType::SHAPE2D},
 			{"shape_type", sfge::ShapeType::RECTANGLE},
-			{"size",{20,20}}
+			{"size",{5,5}}
 		},
 		{
 			{"name","Rect Shape Component"},
 			{"type",sfge::ComponentType::SHAPE2D},
 			{"shape_type", sfge::ShapeType::CIRCLE},
-			{"radius",20}
+			{"radius",5}
 		}
 	};
 		json colliders[] =
@@ -169,14 +160,14 @@ TEST(Physics, TestShapeContact)
 			{"name","Rect Collider"},
 			{"type", sfge::ComponentType::COLLIDER2D},
 			{"collider_type",sfge::ColliderType::BOX},
-			{"size",{20,20}},
+			{"size",{5,5}},
 			{"sensor",true}
 		},
 		{
 			{"name","Circle Collider"},
 			{"type", sfge::ComponentType::COLLIDER2D},
 			{"collider_type",sfge::ColliderType::CIRCLE},
-			{"radius",20},
+			{"radius",5},
 			{"sensor",true}
 		}
 	};
@@ -205,7 +196,7 @@ TEST(Physics, TestShapeContact)
 	}
 
 	sceneJson["entities"] = entities;
-	sceneJson["systems"] = json::array({
+	sceneJson["systems"] = nlohmann::json::array({
 		{
 			{ "script_path", "scripts/contact_debug_system.py" }
 		},
@@ -214,7 +205,7 @@ TEST(Physics, TestShapeContact)
 		},
 		{
 			{ "script_path", 
-			//"scripts/mouse_raycast_system.py" 
+			"scripts/mouse_raycast_system.py" 
 			"nothing" }
 		},
 		{

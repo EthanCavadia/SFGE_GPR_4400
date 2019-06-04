@@ -57,9 +57,9 @@ public:
 private:
 	p2Vec2 m_Gravity;
 	std::vector<p2Body> m_Bodies;
-	std::vector<p2Body*> m_ReturnBodies;
 	int m_BodyIndex = 0;
 	p2QuadTree* rootQuad;
+	p2ContactListener* m_ContactListener;
 	p2ContactManager m_ContactManager;
 };
 

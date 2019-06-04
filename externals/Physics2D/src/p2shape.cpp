@@ -40,7 +40,7 @@ void p2CircleShape::SetRadius(float radius)
 	m_Radius = radius;
 }
 
-p2RectShape::p2RectShape(p2Vec2 size)
+p2RectShape::p2RectShape(p2Vec2 size) : p2Shape()
 {
 	type = RECT;
 	m_Size = size;

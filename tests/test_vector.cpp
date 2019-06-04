@@ -27,6 +27,7 @@ SOFTWARE.
 #include <engine/scene.h>
 #include <utility/json_utility.h>
 #include <gtest/gtest.h>
+#include <json.hpp>
 
 TEST(Physics, TestVector)
 {
@@ -42,7 +43,7 @@ TEST(Physics, TestVector)
     json systemJson = {
             {"script_path", "scripts/vector_system.py"}
     };
-    sceneJson["systems"] = json::array({ systemJson });
+    sceneJson["systems"] = nlohmann::json::array({ systemJson });
     auto* sceneManager = engine.GetSceneManager();
     sceneManager->LoadSceneFromJson(sceneJson);
 

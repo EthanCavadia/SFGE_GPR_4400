@@ -28,7 +28,6 @@ SOFTWARE.
 #include <engine/component.h>
 #include <engine/transform2d.h>
 #include <editor/editor.h>
-#include "p2body.h"
 #include "p2world.h"
 
 namespace sfge

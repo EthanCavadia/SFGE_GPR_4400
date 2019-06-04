@@ -28,14 +28,25 @@ SOFTWARE.
 #include <p2collider.h>
 #include <vector>
 
+class p2Body;
+
 /**
 * \brief Representation of a contact given as argument in a p2ContactListener
 */
 class p2Contact
 {
 public:
-	p2Collider* GetColliderA();
-	p2Collider* GetColliderB();
+
+	void Init(p2Collider* colliderA, p2Collider* colliderB);
+	p2Collider* GetColliderA() const;
+	p2Collider* GetColliderB() const;
+	//void SetContact(p2Collider * colliderA, p2Collider * ColliderB);
+	p2Vec2 GetContact() const;
+	bool CheckIfEqual(p2Contact contactA, p2Contact contactB);
+	p2Vec2 CircleVsCircle(p2CircleShape circle1, p2CircleShape circle2);
+	p2Collider* colliderA;
+	p2Collider* colliderB;
+	p2Vec2 contactPoint;
 };
 
 /**
@@ -46,6 +57,7 @@ class p2ContactListener
 public:
 	virtual void BeginContact(p2Contact* contact) = 0;
 	virtual void EndContact(p2Contact* contact) = 0;
+	
 };
 
 /**
@@ -57,11 +69,13 @@ public:
 	p2ContactManager() {};
 	p2ContactManager(p2ContactListener* listener) : m_ContactListener(listener) {};
 	void SetContactListener(p2ContactListener * listener);
-
+	void CheckContact(std::vector<p2Body*> bodies);
+	
 private:
 	// Private attributes.
 	p2ContactListener* m_ContactListener = nullptr;
 	std::vector<p2Contact> m_CurrentContacts = std::vector<p2Contact>();
+	
 	
 };
 #endif
