@@ -175,7 +175,7 @@ Body2d* Body2dManager::AddComponent(Entity entity)
 	if (auto world = m_WorldPtr.lock())
 	{
 		p2BodyDef bodyDef;
-		bodyDef.type = p2BodyType::STATIC;
+		bodyDef.type = p2BodyType::KINEMATIC;
 
 		auto* transform = m_Transform2dManager->GetComponentPtr(entity);
 		const auto pos = transform->Position;

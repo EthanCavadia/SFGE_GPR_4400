@@ -67,7 +67,7 @@ public:
 	* \brief Return the userData
 	*/
 	void* GetUserData();
-	p2Shape* GetShape() const;
+	p2Shape* GetShape();
 	p2ColliderType GetColliderType();
 	void SetUserData(void* colliderData);
 	p2AABB BuildAABBCollider(p2Vec2 position);

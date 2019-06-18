@@ -162,7 +162,7 @@ void PlanetSystem::OnFixedUpdate()
 #ifdef WITH_PHYSICS
 		const auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(i + 1);
 		auto bodyPtr = m_Engine.GetPhysicsManager()->GetBodyManager()->GetComponentPtr(i + 1);
-		bodyPtr->ApplyForce(CalculateNewForce(transformPtr->Position));
+		bodyPtr->ApplyForce(CalculateNewForce(transformPtr->Position) * fixedDeltaTime);
 #else
 		auto transformPtr = m_Engine.GetTransform2dManager()->GetComponentPtr(i + 1);
 		const auto force = meter2pixel(CalculateNewForce(transformPtr->Position));

@@ -43,3 +43,5 @@ class VectorSystem(System):
         graphics2d_manager.draw_vector(self.v, Vec2f(600, 200), Color.Green)
         graphics2d_manager.draw_vector(self.u, Vec2f(600, 200), Color.Green)
         graphics2d_manager.draw_vector(self.result, Vec2f(600, 200), Color.Red)
+
+		

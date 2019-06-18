@@ -63,7 +63,7 @@ float p2AABB::YMax() const
 
 bool p2AABB::DoContain(const p2Vec2 position) const
 {
-	return position > bottomLeft && position < topRight;
+	return position >= bottomLeft && position <= topRight;
 }
 
 bool p2AABB::DoOverlapWith(const p2AABB aabb) const

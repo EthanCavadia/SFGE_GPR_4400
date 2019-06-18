@@ -54,7 +54,7 @@ void p2QuadTree::Split()
 				child->Insert(m_Objects[i]);
 				m_Objects.erase(m_Objects.begin() + i);
 			}
-			if (m_Objects.size()<= i)
+			if (m_Objects.size() <= i)
 			{
 				break;
 			}

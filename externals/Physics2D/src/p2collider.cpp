@@ -24,7 +24,7 @@ void* p2Collider::GetUserData()
 	return userData;
 }
 
-p2Shape* p2Collider::GetShape() const
+p2Shape* p2Collider::GetShape()
 {
 	return shape;
 }

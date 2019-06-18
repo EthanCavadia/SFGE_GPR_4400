@@ -41,7 +41,7 @@ namespace sfge::ext
 {
 
 
-//#define WITH_PHYSICS
+#define WITH_PHYSICS
 #define WITH_VERTEXARRAY
 //#define MULTI_THREAD
 
@@ -75,7 +75,7 @@ private:
 	const float gravityConst = 1000.0f;
 	const float centerMass = 1000.0f;
 	const float planetMass = 1.0f;
-	const size_t entitiesNmb = 10'000;
+	const size_t entitiesNmb = 100000;
 
 #ifndef WITH_PHYSICS
 	std::vector<Vec2f> m_Velocities{entitiesNmb};

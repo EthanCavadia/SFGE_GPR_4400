@@ -31,7 +31,7 @@ SOFTWARE.
 #include "SFML/Graphics/RenderWindow.hpp"
 #include "p2quadtree.h"
 
-const size_t MAX_BODY_LEN = 256;
+const size_t MAX_BODY_LEN = 100000;
 
 /**
 * \brief Representation of the physical world in meter

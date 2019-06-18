@@ -38,6 +38,7 @@ enum ShapeType
 class p2Shape
 {
 public:
+	virtual void VirtualFunction();
 	ShapeType type;
 };
 

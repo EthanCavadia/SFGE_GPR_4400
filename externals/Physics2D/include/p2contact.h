@@ -43,7 +43,8 @@ public:
 	//void SetContact(p2Collider * colliderA, p2Collider * ColliderB);
 	p2Vec2 GetContact() const;
 	bool CheckIfEqual(p2Contact contactA, p2Contact contactB);
-	p2Vec2 CircleVsCircle(p2CircleShape circle1, p2CircleShape circle2);
+	
+	
 	p2Collider* colliderA;
 	p2Collider* colliderB;
 	p2Vec2 contactPoint;
@@ -70,7 +71,13 @@ public:
 	p2ContactManager(p2ContactListener* listener) : m_ContactListener(listener) {};
 	void SetContactListener(p2ContactListener * listener);
 	void CheckContact(std::vector<p2Body*> bodies);
-	
+	/**
+	 * Minimum translation vector. Get if an object is in another object
+	 */
+	p2Vec2 MTV(p2Body bodyA, p2Body bodyB);
+	p2Vec2 CircleVsCircle(p2Body bodyA, p2Body bodyB);
+	p2Vec2 CircleVsRect(p2Body bodyA, p2Body bodyB);
+	p2Vec2 RectVsRect(p2Body bodyA, p2Body bodyB);
 private:
 	// Private attributes.
 	p2ContactListener* m_ContactListener = nullptr;

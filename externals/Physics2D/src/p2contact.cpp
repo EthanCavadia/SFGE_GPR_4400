@@ -24,6 +24,7 @@ SOFTWARE.
 
 #include <p2contact.h>
 #include "p2body.h"
+#include <complex.h>
 
 void p2Contact::Init(p2Collider* colliderA, p2Collider* colliderB)
 {
@@ -88,12 +89,25 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 										break;
 									}
 								}
+								p2Vec2 mtv = MTV(*bodies[j], *otherBody);
+								if (mtv != p2Vec2(0,0))
+								{
+									bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * 2));
+									otherBody->SetLinearVelocity(otherBody->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(otherBody->GetLinearVelocity(), mtv.Normalized()) * 2));
+								}
+								if (bodies[j]->GetType() != p2BodyType::STATIC)
+								{
+									bodies[j]->SetPosition(bodies[j]->GetPosition() + mtv);
+								}
+								if (otherBody->GetType() != p2BodyType::STATIC)
+								{
+									otherBody->SetPosition(otherBody->GetPosition() - mtv);
+								}
 								if (!check)
 								{
 									m_CurrentContacts.push_back(contact);
 									m_ContactListener->BeginContact(&contact);
 								}
-								
 							}
 							else
 							{
@@ -130,15 +144,88 @@ bool p2Contact::CheckIfEqual(p2Contact contactA, p2Contact contactB)
 			(contactA.GetColliderA() == contactB.GetColliderB() && contactA.GetColliderB() == contactB.GetColliderA());
 }
 
-p2Vec2 p2Contact::CircleVsCircle(p2CircleShape circle1, p2CircleShape circle2)
+p2Vec2 p2ContactManager::MTV(p2Body bodyA, p2Body bodyB)
 {
-	float radius1 = circle1.GetRadius();
-	float radius2 = circle2.GetRadius();
+	p2Vec2 mtvX;
+	p2Vec2 mtvY;
 
-	float distance = radius1 + radius2;
+	p2Vec2 distance;
+	p2Vec2 sumSize;
+	distance = bodyB.GetPosition() - bodyA.GetPosition();
+	sumSize = bodyA.GetAABB().GetExtends() / 2 + bodyB.GetAABB().GetExtends() / 2;
 
-	if (distance < radius1 + radius2)
+	if (abs(distance.x - sumSize.x) < abs(distance.x + sumSize.x))
 	{
-		return contactPoint;
+		mtvX = p2Vec2(distance.x - sumSize.x, 0);
+	}
+	else
+	{
+		mtvX = p2Vec2(distance.x + sumSize.x, 0);
+	}
+
+	if (abs(distance.y - sumSize.y) < abs(distance.y + sumSize.y))
+	{
+		mtvY = p2Vec2(0, distance.y - sumSize.y);
+	}
+	else
+	{
+		mtvY = p2Vec2(0, distance.y + sumSize.y);
+	}
+
+	if (mtvX.GetMagnitude() < mtvY.GetMagnitude() && mtvX.GetMagnitude() != 0)
+	{
+		return mtvX;
+	}
+	else
+	{
+		return mtvY;
 	}
 }
+
+p2Vec2 p2ContactManager::CircleVsCircle(p2Body bodyA, p2Body bodyB)
+{
+	if (p2CircleShape* circleShapeA = dynamic_cast<p2CircleShape*>(bodyA.GetCollider()->GetShape()))
+	{
+		if (p2CircleShape* circleShapeB = dynamic_cast<p2CircleShape*>(bodyB.GetCollider()->GetShape()))
+		{
+			if (bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShapeA->GetRadius(),circleShapeA->GetRadius()) + p2Vec2(circleShapeB->GetRadius(),circleShapeB->GetRadius()))
+			{
+				return ((bodyA.GetPosition().Normalized() - bodyB.GetPosition()).Normalized() + p2Vec2(circleShapeA->GetRadius(), circleShapeA->GetRadius()) + p2Vec2(circleShapeB->GetRadius(), circleShapeB->GetRadius()));
+			}
+		}
+	}
+	return p2Vec2(1, 1);
+}
+
+p2Vec2 p2ContactManager::CircleVsRect(p2Body bodyA, p2Body bodyB)
+{
+	if (p2CircleShape* circleShape = dynamic_cast<p2CircleShape*>(bodyA.GetCollider()->GetShape()))
+	{
+		if (p2RectShape* rectShape = dynamic_cast<p2RectShape*>(bodyB.GetCollider()->GetShape()))
+		{
+			if (bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShape->GetRadius(), 0) + p2Vec2(rectShape->GetSize().x, 0) ||
+				bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(0, circleShape->GetRadius()) + p2Vec2(0, rectShape->GetSize().y) ||
+				bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShape->GetRadius(), circleShape->GetRadius()) + rectShape->GetSize())
+			{
+				return (bodyA.GetPosition().Normalized() - bodyB.GetPosition().Normalized() + p2Vec2(circleShape->GetRadius(), circleShape->GetRadius()) - rectShape->GetSize());
+			}
+		}
+	}
+	return p2Vec2(1, 1);
+}
+
+/*p2Vec2 p2ContactManager::RectVsRect(p2Body bodyA, p2Body bodyB)
+{
+	if (p2RectShape* rectShapeA = dynamic_cast<p2RectShape*>(bodyA.GetCollider()->GetShape()))
+	{
+		if (p2RectShape* rectShapeB = dynamic_cast<p2RectShape*>(bodyB.GetCollider()->GetShape()))
+		{
+			if (bodyA.GetPosition() - bodyB.GetPosition() < rectShapeA->GetSize().x)
+			{
+				
+			}
+		}
+	}
+
+	return p2Vec2(1, 1);
+}*/

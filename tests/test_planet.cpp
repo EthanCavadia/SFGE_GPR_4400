@@ -29,7 +29,7 @@ SOFTWARE.
 #include <gtest/gtest.h>
 #include <engine/component.h>
 
-TEST(Physics, TestPlanetPySystem)
+TEST(System, TestPlanetPySystem)
 {
 	sfge::Engine engine;
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
@@ -50,7 +50,7 @@ TEST(Physics, TestPlanetPySystem)
 	engine.Start();
 }
 
-TEST(System, TestPlanetPySystemCpp)
+TEST(Physics, TestPlanetPySystemCpp)
 {
 	sfge::Engine engine;
 	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();

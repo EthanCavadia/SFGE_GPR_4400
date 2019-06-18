@@ -40,17 +40,28 @@ void p2World::Step(float dt)
 	rootQuad->Clear();
 	for (p2Body& body : m_Bodies)
 	{
+		if (!body.isInit)
+		{
+			continue;
+		}
 		if (body.GetType() == p2BodyType::DYNAMIC)
 		{
-			body.SetLinearVelocity(body.GetLinearVelocity() + m_Gravity * dt);
+			//body.SetLinearVelocity(body.GetLinearVelocity() + m_Gravity * dt);
 			body.ApplyForceToCenter(m_Gravity * dt);
-			body.SetPosition(body.GetPosition() + body.GetLinearVelocity() * dt);
 			//std::cout << body.GetLinearVelocity().y << std::endl;
 			// Check for collision
 
 		}
+		if (body.GetType() != p2BodyType::STATIC)
+		{
+			body.SetPosition(body.GetPosition() + body.GetLinearVelocity() * dt);
+		}
+
 		body.BuildAABB();
-		rootQuad->Insert(&body);
+		if (body.GetCollider()->GetUserData() != nullptr)
+		{
+			rootQuad->Insert(&body);
+		}
 	}
 
 	for (p2Body& bodies : m_Bodies)
@@ -59,7 +70,10 @@ void p2World::Step(float dt)
 		{
 			continue;
 		}
-		m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies));
+		if (bodies.GetCollider()->GetUserData() != nullptr)
+		{
+			m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies));
+		}
 	}
 }
 

@@ -24,6 +24,10 @@ SOFTWARE.
 
 #include <p2shape.h>
 
+void p2Shape::VirtualFunction()
+{
+}
+
 p2CircleShape::p2CircleShape(float radius) : p2Shape()
 {
 	type = CIRCLE;

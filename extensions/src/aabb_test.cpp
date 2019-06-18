@@ -53,7 +53,7 @@ namespace sfge::ext
 		{
 			auto transform = m_Transform2DManager->GetComponentPtr(entities[i]);
 			
-			//transform->EulerAngle += 5*dt;
+			
 		}
 	}
 
