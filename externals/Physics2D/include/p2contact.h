@@ -77,12 +77,11 @@ public:
 	p2Vec2 MTV(p2Body bodyA, p2Body bodyB);
 	p2Vec2 CircleVsCircle(p2Body bodyA, p2Body bodyB);
 	p2Vec2 CircleVsRect(p2Body bodyA, p2Body bodyB);
-	p2Vec2 RectVsRect(p2Body bodyA, p2Body bodyB);
 private:
 	// Private attributes.
 	p2ContactListener* m_ContactListener = nullptr;
 	std::vector<p2Contact> m_CurrentContacts = std::vector<p2Contact>();
-	
+	bool check = false;
 	
 };
 #endif

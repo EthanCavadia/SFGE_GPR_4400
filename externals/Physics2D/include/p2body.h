@@ -50,6 +50,7 @@ struct p2BodyDef
 	p2Vec2 linearVelocity;
 	float gravityScale;
 	float mass;
+	float restitution;
 };
 
 const size_t MAX_COLLIDER_LEN = 8;
@@ -80,6 +81,7 @@ public:
 	float GetMass() const;
 	void BuildAABB();
 	p2AABB GetAABB();
+	void ResetAABBPosition(p2Vec2 position);
 	p2Collider* GetCollider();
 	p2Vec2 normalizedPosition = this->position.Normalized();
 	bool isInit = false;

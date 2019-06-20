@@ -73,6 +73,7 @@ void p2World::Step(float dt)
 		if (bodies.GetCollider()->GetUserData() != nullptr)
 		{
 			m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies));
+			bodies.ResetAABBPosition(bodies.GetPosition());
 		}
 	}
 }

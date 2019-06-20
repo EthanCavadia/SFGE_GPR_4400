@@ -67,7 +67,7 @@ public:
 	std::vector<p2Body*> GetChildrenObj();
 private:
 	
-	static const int MAX_OBJECTS = 10;
+	static const int MAX_OBJECTS = 8;
 	static const int MAX_LEVELS = 10;
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;

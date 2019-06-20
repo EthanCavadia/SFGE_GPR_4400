@@ -81,6 +81,7 @@ float p2Body::GetMass() const
 	return mass;
 }
 
+
  void p2Body::BuildAABB()
  {
 	if(m_Colliders.empty())
@@ -89,6 +90,16 @@ float p2Body::GetMass() const
 	}
 	 aabb = m_Colliders[0].BuildAABBCollider(position);
  }
+
+void p2Body::ResetAABBPosition(p2Vec2 position)
+{
+	if (m_Colliders.empty())
+	{
+		return;
+	}
+	aabb = m_Colliders[0].BuildAABBCollider(position);
+}
+
 
 p2AABB p2Body::GetAABB()
 {

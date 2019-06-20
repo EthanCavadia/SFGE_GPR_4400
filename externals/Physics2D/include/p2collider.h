@@ -71,7 +71,7 @@ public:
 	p2ColliderType GetColliderType();
 	void SetUserData(void* colliderData);
 	p2AABB BuildAABBCollider(p2Vec2 position);
-
+	float GetRestitution();
 private:
 	p2AABB aabb;
 	void* userData = nullptr;

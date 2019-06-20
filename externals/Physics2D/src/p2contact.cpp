@@ -80,7 +80,6 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 								contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
 
 								int indexContact = -1;
-
 								for (int l = 0; l < m_CurrentContacts.size(); l++)
 								{
 									if (contact.CheckIfEqual(m_CurrentContacts[l], contact))
@@ -92,33 +91,20 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 
 								p2Vec2 mtv;
 								mtv = CircleVsCircle(*bodies[j], *otherBody);
-								if (mtv == p2Vec2(0,0) && indexContact != -1)
-								{
-									m_ContactListener->EndContact(&contact);
-									m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-								}
-								if (mtv == p2Vec2(1, 1))
-								{
-									mtv = CircleVsRect(*bodies[j], *otherBody);
-									if (mtv == p2Vec2(0, 0) && indexContact != -1)
-									{
-										m_ContactListener->EndContact(&contact);
-										m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-									}
-									if (mtv == p2Vec2(1, 1))
-									{
-										mtv = MTV(*bodies[j], *otherBody);
-										if (mtv == p2Vec2(0, 0) && indexContact != -1)
-										{
-											m_ContactListener->EndContact(&contact);
-											m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-										}
-									}
-								}
+								mtv = CircleVsRect(*bodies[j], *otherBody);
+								mtv = MTV(*bodies[j], *otherBody);
 								if (mtv != p2Vec2(0,0))
 								{
-									bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * 2));
-									otherBody->SetLinearVelocity(otherBody->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(otherBody->GetLinearVelocity(), mtv.Normalized()) * 2));
+									if (bodies[j]->GetType() == p2BodyType::DYNAMIC && otherBody->GetType() == p2BodyType::STATIC || bodies[j]->GetType() == p2BodyType::STATIC && otherBody->GetType() == p2BodyType::DYNAMIC)
+									{
+										bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() * p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * (bodies[j]->GetCollider()->GetRestitution() + bodies[j]->GetCollider()->GetRestitution())));
+										otherBody->SetLinearVelocity(otherBody->GetLinearVelocity() - (mtv.Normalized() * p2Vec2::Dot(otherBody->GetLinearVelocity(), mtv.Normalized()) * (otherBody->GetCollider()->GetRestitution() + otherBody->GetCollider()->GetRestitution())));
+									}
+									if (bodies[j]->GetType() == p2BodyType::DYNAMIC && otherBody->GetType() == p2BodyType::DYNAMIC)
+									{
+										//bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() * (bodies[j]->GetMass() - otherBody->GetMass() / bodies[j]->GetMass() + otherBody->GetMass())));
+										//otherBody->SetLinearVelocity((otherBody->GetLinearVelocity() * 2) * (otherBody->GetMass() / (otherBody->GetMass() + bodies[j]->GetMass())));
+									}
 								}
 								if (bodies[j]->GetType() != p2BodyType::STATIC)
 								{
@@ -139,7 +125,7 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 								p2Contact contact = p2Contact();
 								contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
 
-								bool check = false;
+								check = false;
 
 								for (int k = 0; k < m_CurrentContacts.size(); k++)
 								{
@@ -295,19 +281,3 @@ p2Vec2 p2ContactManager::CircleVsRect(p2Body bodyA, p2Body bodyB)
 	}
 	return p2Vec2(1, 1);
 }
-
-/*p2Vec2 p2ContactManager::RectVsRect(p2Body bodyA, p2Body bodyB)
-{
-	if (p2RectShape* rectShapeA = dynamic_cast<p2RectShape*>(bodyA.GetCollider()->GetShape()))
-	{
-		if (p2RectShape* rectShapeB = dynamic_cast<p2RectShape*>(bodyB.GetCollider()->GetShape()))
-		{
-			if (bodyA.GetPosition() - bodyB.GetPosition() < rectShapeA->GetSize().x)
-			{
-				
-			}
-		}
-	}
-
-	return p2Vec2(1, 1);
-}*/

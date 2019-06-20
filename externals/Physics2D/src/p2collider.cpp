@@ -35,6 +35,11 @@ p2ColliderType p2Collider::GetColliderType()
 	return colliderType;
 }
 
+float p2Collider::GetRestitution()
+{
+	return restitution;
+}
+
 
 void p2Collider::SetUserData(void* colliderData)
 {
