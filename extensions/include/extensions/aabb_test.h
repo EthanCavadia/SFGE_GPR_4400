@@ -48,6 +48,7 @@ namespace sfge::ext
 		
 		void DrawAABB(p2AABB aabb) const;
 		void DrawQuadTree(p2QuadTree* quadTree) const;
+		void DrawContact(p2Body body) const;
 		float fixedDeltaTime = 0.0f;
 		const size_t entitiesNmb = 10'000;
 		p2QuadTree* quadTree;

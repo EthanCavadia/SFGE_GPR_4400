@@ -46,10 +46,11 @@ enum class p2BodyType
 struct p2BodyDef
 {
 	p2BodyType type;
-	p2Vec2 position;
-	p2Vec2 linearVelocity;
-	float gravityScale;
-	float mass;
+	p2Vec2 position = p2Vec2();
+	p2Vec2 linearVelocity = p2Vec2();
+	float gravityScale = 0;
+	float mass = 0;
+	float restitution = 0;
 };
 
 const size_t MAX_COLLIDER_LEN = 8;
@@ -80,18 +81,19 @@ public:
 	float GetMass() const;
 	void BuildAABB();
 	p2AABB GetAABB();
+	void ResetAABBPosition(p2Vec2 position);
 	p2Collider* GetCollider();
 	p2Vec2 normalizedPosition = this->position.Normalized();
 	bool isInit = false;
 private:
 	p2AABB aabb;
-	p2Vec2 position;
-	p2Vec2 linearVelocity;
-	p2BodyType bodyType  = p2BodyType::STATIC;
+	p2Vec2 position = p2Vec2();
+	p2Vec2 linearVelocity = p2Vec2();
+	p2BodyType bodyType = p2BodyType::STATIC;
 	float angularVelocity = 0;
 	float mass = 0;
 	int m_ColliderIndex = 0;
-	std::vector<p2Collider> m_Colliders;
+	std::vector<p2Collider> m_Colliders = std::vector<p2Collider>();
 };
 
 #endif

@@ -45,9 +45,10 @@ public:
 	bool CheckIfEqual(p2Contact contactA, p2Contact contactB);
 	
 	
-	p2Collider* colliderA;
-	p2Collider* colliderB;
+	p2Collider* colliderA = nullptr;
+	p2Collider* colliderB = nullptr;
 	p2Vec2 contactPoint;
+	bool updated = false;
 };
 
 /**
@@ -70,19 +71,15 @@ public:
 	p2ContactManager() {};
 	p2ContactManager(p2ContactListener* listener) : m_ContactListener(listener) {};
 	void SetContactListener(p2ContactListener * listener);
-	void CheckContact(std::vector<p2Body*> bodies);
+	void CheckContact(std::vector<p2Body*> bodies,p2Body* body);
 	/**
 	 * Minimum translation vector. Get if an object is in another object
 	 */
 	p2Vec2 MTV(p2Body bodyA, p2Body bodyB);
 	p2Vec2 CircleVsCircle(p2Body bodyA, p2Body bodyB);
 	p2Vec2 CircleVsRect(p2Body bodyA, p2Body bodyB);
-	p2Vec2 RectVsRect(p2Body bodyA, p2Body bodyB);
-private:
-	// Private attributes.
-	p2ContactListener* m_ContactListener = nullptr;
 	std::vector<p2Contact> m_CurrentContacts = std::vector<p2Contact>();
-	
-	
+private:
+	p2ContactListener* m_ContactListener = nullptr;
 };
 #endif

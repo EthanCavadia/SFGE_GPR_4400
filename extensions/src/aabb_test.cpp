@@ -97,4 +97,10 @@ namespace sfge::ext
 			}
 		}
 	}
+
+	void AabbTest::DrawContact(p2Body body) const
+	{
+	
+	}
+
 }

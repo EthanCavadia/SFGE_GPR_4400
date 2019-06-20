@@ -45,7 +45,7 @@ struct p2ColliderDef
 {
 	void* userData = nullptr;
 	p2Shape* shape;
-	float restitution;
+	float restitution = 0;
 	bool isSensor = false;
 	p2ColliderType colliderType;
 };
@@ -71,15 +71,15 @@ public:
 	p2ColliderType GetColliderType();
 	void SetUserData(void* colliderData);
 	p2AABB BuildAABBCollider(p2Vec2 position);
-
+	float GetRestitution();
 private:
 	p2AABB aabb;
 	void* userData = nullptr;
 	p2Shape* shape;
-	bool isSensor;
-	float restitution;
+	bool isSensor = false;
+	float restitution = 0;
 	p2ColliderType colliderType;
-	p2Vec2 extend;
+	p2Vec2 extend = p2Vec2();
 };
 
 

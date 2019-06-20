@@ -54,107 +54,89 @@ p2Vec2 p2Contact::GetContact() const
 }
 
 
-void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
+void p2ContactManager::CheckContact(std::vector<p2Body*> bodies, p2Body* body)
 {
-
-	for (int i = 0; i < bodies.size(); i++)
+	for (int j = 0; j < bodies.size(); j++)
 	{
-		if (bodies[i]->isInit)
+		if (bodies[j]->isInit)
 		{
-			p2ColliderType collideType = bodies[i]->GetCollider()->GetColliderType();
-
-			for (int j = i + 1; j < bodies.size(); j++)
+			p2Body* otherBody = body;
+			p2AABB otherAABB = otherBody->GetAABB();
+			if (otherBody->GetType() == p2BodyType::DYNAMIC || otherBody->GetType() == p2BodyType::STATIC)
 			{
-				if (bodies[j]->isInit)
+				if (otherBody != bodies[j])
 				{
-					p2Body* otherBody = bodies[i];
-					p2AABB otherAABB = otherBody->GetAABB();
-
-					if (otherBody->GetType() == p2BodyType::DYNAMIC || otherBody->GetType() == p2BodyType::STATIC)
+					if (bodies[j]->GetAABB().DoOverlapWith(otherAABB))
 					{
-						if (&otherBody != &bodies[i])
+						p2Contact contact = p2Contact();
+						contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
+
+						int indexContact = -1;
+
+						for (int l = 0; l < m_CurrentContacts.size(); l++)
 						{
-							if (bodies[j]->GetAABB().DoOverlapWith(otherAABB))
+							if (contact.CheckIfEqual(m_CurrentContacts[l], contact))
 							{
-								p2Contact contact = p2Contact();
-								contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
-
-								int indexContact = -1;
-
-								for (int l = 0; l < m_CurrentContacts.size(); l++)
-								{
-									if (contact.CheckIfEqual(m_CurrentContacts[l], contact))
-									{
-										indexContact = l;
-										break;
-									}
-								}
-
-								p2Vec2 mtv;
-								mtv = CircleVsCircle(*bodies[j], *otherBody);
-								if (mtv == p2Vec2(0,0) && indexContact != -1)
-								{
-									m_ContactListener->EndContact(&contact);
-									m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-								}
-								if (mtv == p2Vec2(1, 1))
-								{
-									mtv = CircleVsRect(*bodies[j], *otherBody);
-									if (mtv == p2Vec2(0, 0) && indexContact != -1)
-									{
-										m_ContactListener->EndContact(&contact);
-										m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-									}
-									if (mtv == p2Vec2(1, 1))
-									{
-										mtv = MTV(*bodies[j], *otherBody);
-										if (mtv == p2Vec2(0, 0) && indexContact != -1)
-										{
-											m_ContactListener->EndContact(&contact);
-											m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
-										}
-									}
-								}
-								if (mtv != p2Vec2(0,0))
-								{
-									bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * 2));
-									otherBody->SetLinearVelocity(otherBody->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(otherBody->GetLinearVelocity(), mtv.Normalized()) * 2));
-								}
-								if (bodies[j]->GetType() != p2BodyType::STATIC)
-								{
-									bodies[j]->SetPosition(bodies[j]->GetPosition() + mtv);
-								}
-								if (otherBody->GetType() != p2BodyType::STATIC)
-								{
-									otherBody->SetPosition(otherBody->GetPosition() - mtv);
-								}
-								if (indexContact != -1)
-								{
-									m_CurrentContacts.push_back(contact);
-									m_ContactListener->BeginContact(&contact);
-								}
+								indexContact = l;
+								break;
 							}
-							else
+						}
+
+						p2Vec2 mtv;
+						mtv = CircleVsCircle(*bodies[j], *otherBody);
+						if (mtv == p2Vec2(1, 1))
+						{
+							mtv = CircleVsRect(*bodies[j], *otherBody);
+							if (mtv == p2Vec2(1, 1))
 							{
-								p2Contact contact = p2Contact();
-								contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
-
-								bool check = false;
-
-								for (int k = 0; k < m_CurrentContacts.size(); k++)
-								{
-									if (contact.CheckIfEqual(m_CurrentContacts[k], contact))
-									{
-										check = true;
-										m_CurrentContacts.erase(m_CurrentContacts.begin()+k);
-										break;
-									}
-								}
-								if (check)
-								{
-									m_ContactListener->EndContact(&contact);
-								}
+								mtv = MTV(*bodies[j], *otherBody);
 							}
+						}
+						if (indexContact != -1)
+						{
+							//m_CurrentContacts[indexContact].updated = true;
+							continue;
+						}
+						if (mtv != p2Vec2(0, 0))
+						{
+							bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * (bodies[j]->GetCollider()->GetRestitution() + bodies[j]->GetCollider()->GetRestitution())));
+							otherBody->SetLinearVelocity(otherBody->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(otherBody->GetLinearVelocity(), mtv.Normalized()) * (otherBody->GetCollider()->GetRestitution() + otherBody->GetCollider()->GetRestitution())));
+						}
+
+						if (bodies[j]->GetType() != p2BodyType::STATIC)
+						{
+							bodies[j]->SetPosition(bodies[j]->GetPosition() + mtv);
+						}
+						if (otherBody->GetType() != p2BodyType::STATIC)
+						{
+							otherBody->SetPosition(otherBody->GetPosition() - mtv);
+						}
+						if (indexContact == -1 && mtv != p2Vec2(0, 0))
+						{
+							contact.updated = true;
+							m_CurrentContacts.push_back(contact);
+							m_ContactListener->BeginContact(&contact);
+						}
+					}
+					else
+					{
+						p2Contact contact = p2Contact();
+						contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
+
+						bool check = false;
+
+						for (int k = 0; k < m_CurrentContacts.size(); k++)
+						{
+							if (contact.CheckIfEqual(m_CurrentContacts[k], contact))
+							{
+								check = true;
+								m_CurrentContacts.erase(m_CurrentContacts.begin() + k);
+								break;
+							}
+						}
+						if (check)
+						{
+							m_ContactListener->EndContact(&contact);
 						}
 					}
 				}
@@ -162,6 +144,7 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 		}
 	}
 }
+
 
 bool p2Contact::CheckIfEqual(p2Contact contactA, p2Contact contactB)
 {
@@ -295,19 +278,3 @@ p2Vec2 p2ContactManager::CircleVsRect(p2Body bodyA, p2Body bodyB)
 	}
 	return p2Vec2(1, 1);
 }
-
-/*p2Vec2 p2ContactManager::RectVsRect(p2Body bodyA, p2Body bodyB)
-{
-	if (p2RectShape* rectShapeA = dynamic_cast<p2RectShape*>(bodyA.GetCollider()->GetShape()))
-	{
-		if (p2RectShape* rectShapeB = dynamic_cast<p2RectShape*>(bodyB.GetCollider()->GetShape()))
-		{
-			if (bodyA.GetPosition() - bodyB.GetPosition() < rectShapeA->GetSize().x)
-			{
-				
-			}
-		}
-	}
-
-	return p2Vec2(1, 1);
-}*/

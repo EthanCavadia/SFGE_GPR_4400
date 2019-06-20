@@ -55,12 +55,12 @@ public:
 
 	p2QuadTree* GetQuad() const;
 private:
-	p2Vec2 m_Gravity;
-	std::vector<p2Body> m_Bodies;
+	p2Vec2 m_Gravity = p2Vec2();
+	std::vector<p2Body> m_Bodies = std::vector<p2Body>();
 	int m_BodyIndex = 0;
-	p2QuadTree* rootQuad;
-	p2ContactListener* m_ContactListener;
-	p2ContactManager m_ContactManager;
+	p2QuadTree* rootQuad = nullptr;
+	p2ContactListener* m_ContactListener = nullptr;
+	p2ContactManager m_ContactManager = nullptr;
 };
 
 #endif

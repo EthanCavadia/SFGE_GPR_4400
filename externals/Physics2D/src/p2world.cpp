@@ -72,7 +72,21 @@ void p2World::Step(float dt)
 		}
 		if (bodies.GetCollider()->GetUserData() != nullptr)
 		{
-			m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies));
+			m_ContactManager.CheckContact(rootQuad->Retrieve(&bodies), &bodies);
+			bodies.ResetAABBPosition(bodies.GetPosition());
+		}
+	}
+	
+	for (int i = 0; i < m_ContactManager.m_CurrentContacts.size(); i++)
+	{
+		if (!m_ContactManager.m_CurrentContacts[i].updated)
+		{
+			m_ContactListener->EndContact(&m_ContactManager.m_CurrentContacts[i]);
+			m_ContactManager.m_CurrentContacts.erase(m_ContactManager.m_CurrentContacts.begin() + i);
+		}
+		else
+		{
+			m_ContactManager.m_CurrentContacts[i].updated = false;
 		}
 	}
 }

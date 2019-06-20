@@ -49,24 +49,3 @@ TEST(System, TestPlanetPySystem)
 
 	engine.Start();
 }
-
-TEST(Physics, TestPlanetPySystemCpp)
-{
-	sfge::Engine engine;
-	std::unique_ptr<sfge::Configuration> initConfig = std::make_unique<sfge::Configuration>();
-	initConfig->gravity = p2Vec2();
-	initConfig->devMode = false;
-	initConfig->maxFramerate = 0;
-	engine.Init(std::move(initConfig));
-	json sceneJson = {
-		{ "name", "Test Planet Component" } };
-	json systemJson = {
-		{ "systemClassName", "PlanetSystem" }
-	};
-
-	sceneJson["systems"] = json::array({ systemJson });
-	auto* sceneManager = engine.GetSceneManager();
-	sceneManager->LoadSceneFromJson(sceneJson);
-
-	engine.Start();
-}

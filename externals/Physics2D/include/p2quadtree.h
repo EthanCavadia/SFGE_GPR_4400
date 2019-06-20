@@ -67,12 +67,12 @@ public:
 	std::vector<p2Body*> GetChildrenObj();
 private:
 	
-	static const int MAX_OBJECTS = 10;
+	static const int MAX_OBJECTS = 3;
 	static const int MAX_LEVELS = 10;
 	static const int CHILD_TREE_NMB = 4;
 	int m_NodeLevel = 0;
-	std::vector<p2QuadTree*> nodes;
-	std::vector<p2Body*> m_Objects;
+	std::vector<p2QuadTree*> nodes = std::vector<p2QuadTree*>();
+	std::vector<p2Body*> m_Objects = std::vector<p2Body*>();
 	p2AABB m_Bounds;
 	
 };

@@ -55,7 +55,7 @@ public:
 	void SetRadius(float radius);
 	float GetRadius();
 private:
-	float m_Radius;
+	float m_Radius = 0;
 };
 
 /** 
@@ -68,7 +68,7 @@ public:
 	void SetSize(p2Vec2 size);
 	p2Vec2 GetSize();
 private:
-	p2Vec2 m_Size;
+	p2Vec2 m_Size = p2Vec2();
 };
 
 class p2PolygonShape : public p2Shape

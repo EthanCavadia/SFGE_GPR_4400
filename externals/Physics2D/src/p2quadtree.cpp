@@ -14,6 +14,10 @@ p2QuadTree::p2QuadTree(const int nodeLevel, p2AABB bounds)
 
 void p2QuadTree::Clear()
 {
+	for (p2QuadTree* node : nodes)
+	{
+		node->Clear();
+	}
 	m_Objects.clear();
 	nodes.clear();
 	nodes.reserve(CHILD_TREE_NMB);
@@ -46,7 +50,6 @@ void p2QuadTree::Split()
 	}
 	for (int i = 0; i < m_Objects.size(); i++)
 	{
-
 		for (auto& child : nodes)
 		{
 			if (child->m_Bounds.DoOverlapWith(m_Objects[i]->GetAABB()))
@@ -83,11 +86,12 @@ void p2QuadTree::Insert(p2Body* obj)
 	{
 		bool inserted = false;
 		for (auto& node : nodes)
-		{
-			inserted = true;
+		{	
+			
 			if (node->m_Bounds.DoOverlapWith(obj->GetAABB()))
 			{
 				node->Insert(obj);
+				inserted = true;
 			}
 		}
 		if (inserted == false)
@@ -99,7 +103,6 @@ void p2QuadTree::Insert(p2Body* obj)
 	{
 		m_Objects.push_back(obj);
 	}
-
 	if (m_Objects.size() > MAX_OBJECTS)
 	{
 		Split();
