@@ -45,7 +45,7 @@ TEST(Physics, TestBallFallingToGround)
 
 	json transformJson1;
 	transformJson1["type"] = sfge::ComponentType::TRANSFORM2D;
-	transformJson1["position"] = { 625, 300 };
+	transformJson1["position"] = { 300, 300 };
 	transformJson1["scale"] = { 1.0,1.0 };
 	transformJson1["angle"] = 0.0;
 
@@ -137,7 +137,7 @@ TEST(Physics, TestBallFallingToGround)
 			{ "script_path", "scripts/contact_debug_system.py" }
 		},
 		{
-			//{ "script_path", "scripts/stay_onscreen_system.py" }
+			{ "script_path", "scripts/stay_onscreen_system.py" }
 		},
 		{
 			{ "script_path",

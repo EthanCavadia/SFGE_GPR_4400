@@ -79,17 +79,42 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 								p2Contact contact = p2Contact();
 								contact.Init(bodies[j]->GetCollider(), otherBody->GetCollider());
 
-								bool check = false;
+								int indexContact = -1;
 
-								for (p2Contact c : m_CurrentContacts)
+								for (int l = 0; l < m_CurrentContacts.size(); l++)
 								{
-									if (contact.CheckIfEqual(c, contact))
+									if (contact.CheckIfEqual(m_CurrentContacts[l], contact))
 									{
-										check = true;
+										indexContact = l;
 										break;
 									}
 								}
-								p2Vec2 mtv = MTV(*bodies[j], *otherBody);
+
+								p2Vec2 mtv;
+								mtv = CircleVsCircle(*bodies[j], *otherBody);
+								if (mtv == p2Vec2(0,0) && indexContact != -1)
+								{
+									m_ContactListener->EndContact(&contact);
+									m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
+								}
+								if (mtv == p2Vec2(1, 1))
+								{
+									mtv = CircleVsRect(*bodies[j], *otherBody);
+									if (mtv == p2Vec2(0, 0) && indexContact != -1)
+									{
+										m_ContactListener->EndContact(&contact);
+										m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
+									}
+									if (mtv == p2Vec2(1, 1))
+									{
+										mtv = MTV(*bodies[j], *otherBody);
+										if (mtv == p2Vec2(0, 0) && indexContact != -1)
+										{
+											m_ContactListener->EndContact(&contact);
+											m_CurrentContacts.erase(m_CurrentContacts.begin() + indexContact);
+										}
+									}
+								}
 								if (mtv != p2Vec2(0,0))
 								{
 									bodies[j]->SetLinearVelocity(bodies[j]->GetLinearVelocity() - (mtv.Normalized() *  p2Vec2::Dot(bodies[j]->GetLinearVelocity(), mtv.Normalized()) * 2));
@@ -103,7 +128,7 @@ void p2ContactManager::CheckContact(std::vector<p2Body*> bodies)
 								{
 									otherBody->SetPosition(otherBody->GetPosition() - mtv);
 								}
-								if (!check)
+								if (indexContact != -1)
 								{
 									m_CurrentContacts.push_back(contact);
 									m_ContactListener->BeginContact(&contact);
@@ -171,8 +196,7 @@ p2Vec2 p2ContactManager::MTV(p2Body bodyA, p2Body bodyB)
 	{
 		mtvY = p2Vec2(0, distance.y + sumSize.y);
 	}
-
-	if (mtvX.GetMagnitude() < mtvY.GetMagnitude() && mtvX.GetMagnitude() != 0)
+	if (mtvX.GetMagnitude() < mtvY.GetMagnitude())
 	{
 		return mtvX;
 	}
@@ -188,9 +212,13 @@ p2Vec2 p2ContactManager::CircleVsCircle(p2Body bodyA, p2Body bodyB)
 	{
 		if (p2CircleShape* circleShapeB = dynamic_cast<p2CircleShape*>(bodyB.GetCollider()->GetShape()))
 		{
-			if (bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShapeA->GetRadius(),circleShapeA->GetRadius()) + p2Vec2(circleShapeB->GetRadius(),circleShapeB->GetRadius()))
+			if ((bodyB.GetPosition() - bodyA.GetPosition()).GetMagnitude() < circleShapeA->GetRadius() + circleShapeB->GetRadius())
 			{
-				return ((bodyA.GetPosition().Normalized() - bodyB.GetPosition()).Normalized() + p2Vec2(circleShapeA->GetRadius(), circleShapeA->GetRadius()) + p2Vec2(circleShapeB->GetRadius(), circleShapeB->GetRadius()));
+				return ((bodyB.GetPosition() - bodyA.GetPosition()).Normalized() * ((bodyB.GetPosition() - bodyA.GetPosition()).GetMagnitude() - circleShapeA->GetRadius() - circleShapeB->GetRadius()));
+			}
+			else
+			{
+				return  p2Vec2(0, 0);
 			}
 		}
 	}
@@ -203,11 +231,65 @@ p2Vec2 p2ContactManager::CircleVsRect(p2Body bodyA, p2Body bodyB)
 	{
 		if (p2RectShape* rectShape = dynamic_cast<p2RectShape*>(bodyB.GetCollider()->GetShape()))
 		{
-			if (bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShape->GetRadius(), 0) + p2Vec2(rectShape->GetSize().x, 0) ||
-				bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(0, circleShape->GetRadius()) + p2Vec2(0, rectShape->GetSize().y) ||
-				bodyA.GetPosition() - bodyB.GetPosition() < p2Vec2(circleShape->GetRadius(), circleShape->GetRadius()) + rectShape->GetSize())
+			if ((bodyA.GetPosition().x > bodyB.GetPosition().x + rectShape->GetSize().x ||
+				bodyA.GetPosition().x < bodyB.GetPosition().x - rectShape->GetSize().x )&&
+				(bodyA.GetPosition().y > bodyB.GetPosition().y + rectShape->GetSize().y ||
+				bodyA.GetPosition().y < bodyB.GetPosition().y - rectShape->GetSize().y ))
 			{
-				return (bodyA.GetPosition().Normalized() - bodyB.GetPosition().Normalized() + p2Vec2(circleShape->GetRadius(), circleShape->GetRadius()) - rectShape->GetSize());
+				float minDistance = circleShape->GetRadius();
+				p2Vec2 closestCorner;
+				std::vector<p2Vec2> corners;
+				corners.push_back(bodyB.GetPosition() + rectShape->GetSize() );
+				corners.push_back(bodyB.GetPosition() - rectShape->GetSize() );
+				corners.push_back(bodyB.GetPosition() + p2Vec2(rectShape->GetSize().x , -rectShape->GetSize().y));
+				corners.push_back(bodyB.GetPosition() - p2Vec2(rectShape->GetSize().x , -rectShape->GetSize().y));
+
+				for (p2Vec2 corner : corners)
+				{
+					if ((bodyA.GetPosition() - corner).GetMagnitude() < minDistance)
+					{
+						closestCorner = corner;
+						minDistance = (bodyA.GetPosition() - corner).GetMagnitude();
+					}
+				}
+				if ((minDistance < circleShape->GetRadius()))
+				{
+					return (closestCorner - bodyA.GetPosition()).Normalized() * (minDistance - circleShape->GetRadius());
+				}
+				return p2Vec2(0, 0);
+			}
+		}
+	}
+	if (p2CircleShape* circleShape = dynamic_cast<p2CircleShape*>(bodyB.GetCollider()->GetShape()))
+	{
+		if (p2RectShape* rectShape = dynamic_cast<p2RectShape*>(bodyA.GetCollider()->GetShape()))
+		{
+			if ((bodyB.GetPosition().x > bodyA.GetPosition().x + rectShape->GetSize().x ||
+				bodyB.GetPosition().x < bodyA.GetPosition().x - rectShape->GetSize().x )&&
+				(bodyB.GetPosition().y > bodyA.GetPosition().y + rectShape->GetSize().y ||
+				bodyB.GetPosition().y < bodyA.GetPosition().y - rectShape->GetSize().y ))
+			{
+				float minDistance = circleShape->GetRadius();
+				p2Vec2 closestCorner;
+				std::vector<p2Vec2> corners;
+				corners.push_back(bodyA.GetPosition() + rectShape->GetSize() );
+				corners.push_back(bodyA.GetPosition() - rectShape->GetSize() );
+				corners.push_back(bodyA.GetPosition() + p2Vec2(rectShape->GetSize().x , -rectShape->GetSize().y ));
+				corners.push_back(bodyA.GetPosition() - p2Vec2(rectShape->GetSize().x , -rectShape->GetSize().y ));
+
+				for (p2Vec2 corner : corners)
+				{
+					if ((bodyB.GetPosition() - corner).GetMagnitude() < minDistance)
+					{
+						closestCorner = corner;
+						minDistance = (bodyB.GetPosition() - corner).GetMagnitude();
+					}
+				}
+				if ((minDistance < circleShape->GetRadius()))
+				{
+					return (bodyB.GetPosition() - closestCorner).Normalized() * (minDistance - circleShape->GetRadius());
+				}
+				return p2Vec2(0, 0);
 			}
 		}
 	}
